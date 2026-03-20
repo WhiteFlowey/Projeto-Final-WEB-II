@@ -1,0 +1,11 @@
+package br.com.gatekeeper.controle_acessos.dto;
+
+import lombok.Data;
+
+@Data
+public class ParecerRequestDTO {
+    private String descricao;
+    private String decisao; // Ex: "DEFERIDO", "INDEFERIDO"
+    private Integer solicitacaoId;
+    private Integer usuarioResponsavelId;
+}
