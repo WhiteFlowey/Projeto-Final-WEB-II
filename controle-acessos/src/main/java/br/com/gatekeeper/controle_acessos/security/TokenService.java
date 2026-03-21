@@ -4,6 +4,8 @@ import br.com.gatekeeper.controle_acessos.model.Usuario;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -37,5 +39,18 @@ public class TokenService {
     private Instant dataExpiracao() {
         // O token vai valer por 2 horas a partir do momento do login, no fuso horário de Brasília
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+    }
+
+    public String getSubject(String tokenJWT) {
+        try {
+            var algoritmo = Algorithm.HMAC256(secret);
+            return JWT.require(algoritmo)
+                    .withIssuer("API Gatekeeper")
+                    .build()
+                    .verify(tokenJWT)
+                    .getSubject(); // Puxa o e-mail que guardamos no token
+        } catch (JWTVerificationException exception) {
+            throw new RuntimeException("Token JWT inválido ou expirado!");
+        }
     }
 }
