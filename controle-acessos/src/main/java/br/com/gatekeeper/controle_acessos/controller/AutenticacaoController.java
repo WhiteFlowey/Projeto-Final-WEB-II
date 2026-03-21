@@ -1,6 +1,9 @@
 package br.com.gatekeeper.controle_acessos.controller;
 
 import br.com.gatekeeper.controle_acessos.dto.DadosAutenticacao;
+import br.com.gatekeeper.controle_acessos.dto.DadosTokenJWT;
+import br.com.gatekeeper.controle_acessos.model.Usuario;
+import br.com.gatekeeper.controle_acessos.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,16 +20,21 @@ public class AutenticacaoController {
     @Autowired
     private AuthenticationManager manager;
 
+    @Autowired
+    private TokenService tokenService;
+
     @PostMapping
     public ResponseEntity efetuarLogin(@RequestBody DadosAutenticacao dados) {
-        // 1. Pega o email e senha que vieram do Front-end (Flutter/Postman)
         var authenticationToken = new UsernamePasswordAuthenticationToken(dados.email(), dados.senha());
-        
-        // 2. Chama o Spring Security para validar (ele vai lá no nosso AutenticacaoService e checa o hash no banco)
         var authentication = manager.authenticate(authenticationToken);
 
-        // 3. Se chegou aqui, a senha está correta e o usuário está ATIVO!
-        // Por enquanto, vamos devolver um OK (Código 200). 
-        return ResponseEntity.ok("Login realizado com sucesso! Usuário autenticado.");
+        // Pega o usuário que acabou de ser validado com sucesso
+        var usuarioLogado = (Usuario) authentication.getPrincipal();
+        
+        // Manda a nossa "fábrica" gerar o token para esse usuário
+        var tokenJWT = tokenService.gerarToken(usuarioLogado);
+
+        // Devolve o token no formato JSON
+        return ResponseEntity.ok(new DadosTokenJWT(tokenJWT));
     }
 }
