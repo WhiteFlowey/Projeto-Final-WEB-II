@@ -13,12 +13,12 @@ import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder; // <-- Importação nova
 import org.springframework.stereotype.Service;
 
 @Service
 public class UsuarioService {
 
-    // O Spring injeta automaticamente os repositórios que criamos
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -27,6 +27,10 @@ public class UsuarioService {
 
     @Autowired
     private PerfilRepository perfilRepository;
+
+    // Injetamos a "máquina" que configuramos no SecurityConfigurations
+    @Autowired
+    private PasswordEncoder passwordEncoder; 
 
     public UsuarioResponseDTO criarUsuario(UsuarioRequestDTO request) {
         // 1. Buscamos as entidades reais no banco de dados usando os IDs que vieram do front-end
@@ -40,7 +44,10 @@ public class UsuarioService {
         Usuario usuario = new Usuario();
         usuario.setNome(request.getNome());
         usuario.setEmail(request.getEmail());
-        usuario.setSenha(request.getSenha()); // Num sistema real, aqui usaríamos um BCrypt para criptografar
+        
+        // A MÁGICA ACONTECE AQUI: Pegamos a senha do DTO, passamos na máquina e guardamos no usuário!
+        usuario.setSenha(passwordEncoder.encode(request.getSenha())); 
+        
         usuario.setStatus(StatusUsuario.valueOf(request.getStatus().toUpperCase()));
         usuario.setDepartamento(departamento);
         usuario.setPerfil(perfil);
