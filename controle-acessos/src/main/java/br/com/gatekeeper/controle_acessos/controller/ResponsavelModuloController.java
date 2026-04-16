@@ -1,7 +1,10 @@
 package br.com.gatekeeper.controle_acessos.controller;
 
+import br.com.gatekeeper.controle_acessos.dto.ResponsavelModuloDTO;
 import br.com.gatekeeper.controle_acessos.model.ResponsavelModulo;
 import br.com.gatekeeper.controle_acessos.service.ResponsavelModuloService;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,16 +19,16 @@ public class ResponsavelModuloController {
     @Autowired
     private ResponsavelModuloService service;
 
-    // Define um novo usuário como responsável por um módulo
+    // Repare que agora o ResponseEntity devolve o ResponsavelModuloDTO
     @PostMapping
-    public ResponseEntity<ResponsavelModulo> definirResponsavel(@RequestBody ResponsavelModulo responsavel) {
-        ResponsavelModulo novoResponsavel = service.definirResponsavel(responsavel);
+    public ResponseEntity<ResponsavelModuloDTO> definirResponsavel(@Valid @RequestBody ResponsavelModulo responsavel) {
+        ResponsavelModuloDTO novoResponsavel = service.definirResponsavel(responsavel);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoResponsavel);
     }
 
-    // Lista quem são os responsáveis atuais (ou antigos) de um módulo específico
+    // A lista também devolve os DTOs
     @GetMapping("/modulo/{moduloId}")
-    public ResponseEntity<List<ResponsavelModulo>> listarPorModulo(@PathVariable Integer moduloId) {
+    public ResponseEntity<List<ResponsavelModuloDTO>> listarPorModulo(@PathVariable Integer moduloId) {
         return ResponseEntity.ok(service.listarPorModulo(moduloId));
     }
 }

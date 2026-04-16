@@ -1,14 +1,15 @@
 package br.com.gatekeeper.controle_acessos.dto;
 
-import br.com.gatekeeper.controle_acessos.model.enums.StatusHistoricoAcesso;
 import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class HistoricoAcessoResponseDTO {
+public class ResponsavelModuloDTO {
     private Integer id;
-    private String nomeModulo;
     private LocalDateTime dataInicio;
     private LocalDateTime dataFim;
-    private StatusHistoricoAcesso status;
+    
+    // Pegamos apenas os nomes para exibir na listagem
+    private String nomeResponsavel;
+    private String nomeModulo;
 }

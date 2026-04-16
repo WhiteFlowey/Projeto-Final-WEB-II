@@ -1,4 +1,4 @@
-package br.com.gatekeeper.controle_acessos.dto;
+package br.com.gatekeeper.controle_acessos.dto.response;
 
 import br.com.gatekeeper.controle_acessos.model.enums.StatusUsuario;
 import lombok.Data;

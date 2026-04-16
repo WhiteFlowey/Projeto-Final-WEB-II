@@ -4,6 +4,8 @@ import br.com.gatekeeper.controle_acessos.dto.DadosAutenticacao;
 import br.com.gatekeeper.controle_acessos.dto.DadosTokenJWT;
 import br.com.gatekeeper.controle_acessos.model.Usuario;
 import br.com.gatekeeper.controle_acessos.security.TokenService;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,7 +26,7 @@ public class AutenticacaoController {
     private TokenService tokenService;
 
     @PostMapping
-    public ResponseEntity efetuarLogin(@RequestBody DadosAutenticacao dados) {
+    public ResponseEntity efetuarLogin(@Valid @RequestBody DadosAutenticacao dados) {
         var authenticationToken = new UsernamePasswordAuthenticationToken(dados.email(), dados.senha());
         var authentication = manager.authenticate(authenticationToken);
 

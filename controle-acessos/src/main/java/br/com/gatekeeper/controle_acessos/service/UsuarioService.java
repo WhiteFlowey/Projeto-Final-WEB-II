@@ -1,7 +1,8 @@
 package br.com.gatekeeper.controle_acessos.service;
 
-import br.com.gatekeeper.controle_acessos.dto.UsuarioRequestDTO;
-import br.com.gatekeeper.controle_acessos.dto.UsuarioResponseDTO;
+import br.com.gatekeeper.controle_acessos.dto.request.UsuarioRequestDTO;
+import br.com.gatekeeper.controle_acessos.dto.response.UsuarioResponseDTO;
+import br.com.gatekeeper.controle_acessos.mapper.UsuarioMapper;
 import br.com.gatekeeper.controle_acessos.model.Departamento;
 import br.com.gatekeeper.controle_acessos.model.Perfil;
 import br.com.gatekeeper.controle_acessos.model.Usuario;
@@ -9,16 +10,16 @@ import br.com.gatekeeper.controle_acessos.model.enums.StatusUsuario;
 import br.com.gatekeeper.controle_acessos.repository.DepartamentoRepository;
 import br.com.gatekeeper.controle_acessos.repository.PerfilRepository;
 import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class UsuarioService {
 
-    // O Spring injeta automaticamente os repositórios que criamos
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -28,46 +29,45 @@ public class UsuarioService {
     @Autowired
     private PerfilRepository perfilRepository;
 
+    @Autowired
+    private UsuarioMapper usuarioMapper; // Injetando o seu novo Mapper
+
+    @Autowired
+    private PasswordEncoder passwordEncoder; // Injetando o codificador definido na SecurityConfigurations
+
+    @Transactional
     public UsuarioResponseDTO criarUsuario(UsuarioRequestDTO request) {
-        // 1. Buscamos as entidades reais no banco de dados usando os IDs que vieram do front-end
+        // 1. Validação de Dependências (Regra de Negócio)
         Departamento departamento = departamentoRepository.findById(request.getDepartamentoId())
                 .orElseThrow(() -> new RuntimeException("Departamento não encontrado"));
 
         Perfil perfil = perfilRepository.findById(request.getPerfilId())
                 .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
 
-        // 2. Montamos a entidade Usuario que será salva no banco (Model)
-        Usuario usuario = new Usuario();
-        usuario.setNome(request.getNome());
-        usuario.setEmail(request.getEmail());
-        usuario.setSenha(request.getSenha()); // Num sistema real, aqui usaríamos um BCrypt para criptografar
-        usuario.setStatus(StatusUsuario.valueOf(request.getStatus().toUpperCase()));
+        // 2. Uso do Mapper para converter DTO em Entidade
+        // O Mapper já cuida de campos simples como nome e email
+        Usuario usuario = usuarioMapper.toEntity(request);
+
+        // 3. Segurança: Criptografando a senha antes de salvar
+        String senhaCriptografada = passwordEncoder.encode(request.getSenha());
+        usuario.setSenha(senhaCriptografada);
+
+        // 4. Configurando as relações e status manualmente (pois vêm de IDs específicos)
         usuario.setDepartamento(departamento);
         usuario.setPerfil(perfil);
+        usuario.setStatus(StatusUsuario.valueOf(request.getStatus().toUpperCase()));
 
-        // 3. Salvamos no banco de dados
+        // 5. Persistência
         usuario = usuarioRepository.save(usuario);
 
-        // 4. Convertamos a entidade salva para o DTO de Resposta (escondendo a senha)
-        return converterParaResponseDTO(usuario);
-    }
-
-    // Método auxiliar para não repetirmos código de conversão
-    private UsuarioResponseDTO converterParaResponseDTO(Usuario usuario) {
-        UsuarioResponseDTO response = new UsuarioResponseDTO();
-        response.setId(usuario.getId());
-        response.setNome(usuario.getNome());
-        response.setEmail(usuario.getEmail());
-        response.setStatus(usuario.getStatus());
-        response.setNomeDepartamento(usuario.getDepartamento().getNome());
-        response.setNomePerfil(usuario.getPerfil().getNome());
-        return response;
+        // 6. Retorno usando o Mapper para converter Entidade em ResponseDTO
+        return usuarioMapper.toDTO(usuario);
     }
 
     public List<UsuarioResponseDTO> listarTodos() {
-        // Vai no banco, busca todos os usuários e transforma cada um deles no DTO sem a senha
+        // O Stream agora fica muito mais curto usando a referência do método do Mapper
         return usuarioRepository.findAll().stream()
-                .map(this::converterParaResponseDTO)
+                .map(usuarioMapper::toDTO)
                 .toList();
     }
 }

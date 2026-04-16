@@ -1,4 +1,4 @@
-package br.com.gatekeeper.controle_acessos.dto;
+package br.com.gatekeeper.controle_acessos.dto.request;
 
 import lombok.Data;
 

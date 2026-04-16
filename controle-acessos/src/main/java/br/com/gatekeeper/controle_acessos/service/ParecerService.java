@@ -1,7 +1,8 @@
 package br.com.gatekeeper.controle_acessos.service;
 
-import br.com.gatekeeper.controle_acessos.dto.ParecerRequestDTO;
-import br.com.gatekeeper.controle_acessos.dto.ParecerResponseDTO;
+import br.com.gatekeeper.controle_acessos.dto.request.ParecerRequestDTO;
+import br.com.gatekeeper.controle_acessos.dto.response.ParecerResponseDTO;
+import br.com.gatekeeper.controle_acessos.mapper.ParecerMapper; // 1. Importar o mapper
 import br.com.gatekeeper.controle_acessos.model.*;
 import br.com.gatekeeper.controle_acessos.model.enums.StatusHistoricoAcesso;
 import br.com.gatekeeper.controle_acessos.model.enums.StatusSolicitacao;
@@ -20,9 +21,10 @@ public class ParecerService {
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private HistoricoAcessoRepository historicoRepository;
     @Autowired private NotificacaoRepository notificacaoRepository;
+    
+    // 2. Injetar o Mapper
+    @Autowired private ParecerMapper parecerMapper;
 
-    // O @Transactional garante que se der erro no meio (ex: ao criar a notificação), 
-    // ele desfaz a aprovação para não deixar o banco inconsistente.
     @Transactional 
     public ParecerResponseDTO avaliarSolicitacao(ParecerRequestDTO request) {
         
@@ -32,20 +34,20 @@ public class ParecerService {
         Usuario avaliador = usuarioRepository.findById(request.getUsuarioResponsavelId())
                 .orElseThrow(() -> new RuntimeException("Avaliador não encontrado"));
 
-        // 1. Cria e salva o Parecer
-        Parecer parecer = new Parecer();
-        parecer.setDescricao(request.getDescricao());
-        parecer.setDecisao(request.getDecisao().toUpperCase());
+        // 3. O Mapper cria a entidade baseada no request
+        Parecer parecer = parecerMapper.toEntity(request);
+        
+        // 4. Regras de Negócio e Relacionamentos
         parecer.setDataParecer(LocalDateTime.now());
         parecer.setSolicitacao(solicitacao);
         parecer.setUsuarioResponsavel(avaliador);
         parecer = parecerRepository.save(parecer);
 
-        // 2. Atualiza o status da Solicitação
-        if (parecer.getDecisao().equals("APROVADA")) {
+        // 5. Fluxo de Decisão Automática
+        if (parecer.getDecisao().equalsIgnoreCase("APROVADA")) {
             solicitacao.setStatus(StatusSolicitacao.APROVADA);
             
-            // 3. Cria o Histórico de Acesso automaticamente!
+            // Criação do histórico (Lógica de Negócio permanece aqui)
             HistoricoAcesso historico = new HistoricoAcesso();
             historico.setDataInicio(LocalDateTime.now());
             historico.setStatus(StatusHistoricoAcesso.ATIVO);
@@ -58,7 +60,7 @@ public class ParecerService {
         }
         solicitacaoRepository.save(solicitacao);
 
-        // 4. Cria a Notificação para o usuário que pediu o acesso
+        // 6. Notificação Automática
         Notificacao notificacao = new Notificacao();
         notificacao.setMensagem("Sua solicitação " + solicitacao.getProtocolo() + " foi " + parecer.getDecisao());
         notificacao.setDataEnvio(LocalDateTime.now());
@@ -67,14 +69,7 @@ public class ParecerService {
         notificacao.setUsuario(solicitacao.getUsuario());
         notificacaoRepository.save(notificacao);
 
-        // 5. Devolve o DTO de resposta
-        ParecerResponseDTO response = new ParecerResponseDTO();
-        response.setId(parecer.getId());
-        response.setDescricao(parecer.getDescricao());
-        response.setDecisao(parecer.getDecisao());
-        response.setDataParecer(parecer.getDataParecer());
-        response.setNomeAvaliador(avaliador.getNome());
-        
-        return response;
+        // 7. Devolve o DTO mapeado (Limpo e profissional)
+        return parecerMapper.toDTO(parecer);
     }
 }
