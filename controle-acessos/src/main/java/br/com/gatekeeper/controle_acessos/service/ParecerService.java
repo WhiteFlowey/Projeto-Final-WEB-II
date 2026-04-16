@@ -21,8 +21,6 @@ public class ParecerService {
     @Autowired private HistoricoAcessoRepository historicoRepository;
     @Autowired private NotificacaoRepository notificacaoRepository;
 
-    // O @Transactional garante que se der erro no meio (ex: ao criar a notificação), 
-    // ele desfaz a aprovação para não deixar o banco inconsistente.
     @Transactional 
     public ParecerResponseDTO avaliarSolicitacao(ParecerRequestDTO request) {
         
@@ -58,13 +56,13 @@ public class ParecerService {
         }
         solicitacaoRepository.save(solicitacao);
 
-        // 4. Cria a Notificação para o usuário que pediu o acesso
+        // 4. Cria a Notificação (AGORA LIGADA AO PARECER)
         Notificacao notificacao = new Notificacao();
         notificacao.setMensagem("Sua solicitação " + solicitacao.getProtocolo() + " foi " + parecer.getDecisao());
         notificacao.setDataEnvio(LocalDateTime.now());
-        notificacao.setDecisao(parecer.getDecisao());
-        notificacao.setSolicitacao(solicitacao);
-        notificacao.setUsuario(solicitacao.getUsuario());
+        notificacao.setDecisao(parecer.getDecisao());        
+        notificacao.setParecer(parecer); 
+        
         notificacaoRepository.save(notificacao);
 
         // 5. Devolve o DTO de resposta

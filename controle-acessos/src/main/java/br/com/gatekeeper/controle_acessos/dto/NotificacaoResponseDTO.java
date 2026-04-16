@@ -9,5 +9,6 @@ public class NotificacaoResponseDTO {
     private String mensagem;
     private LocalDateTime dataEnvio;
     private String decisao;
+    private Integer parecerId; 
     private String protocoloSolicitacao;
 }

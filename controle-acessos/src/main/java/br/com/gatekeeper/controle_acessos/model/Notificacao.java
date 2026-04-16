@@ -22,13 +22,8 @@ public class Notificacao {
     @Column(length = 50)
     private String decisao;
 
-    // Relacionamento com a Solicitação que gerou esta notificação
+    // Relacionamento com o parecer que vai receber a notificação
     @ManyToOne
-    @JoinColumn(name = "solicitacao_id", nullable = false)
-    private Solicitacao solicitacao;
-
-    // Relacionamento com o Usuário que vai receber a notificação
-    @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
+    @JoinColumn(name = "parecer_id")
+    private Parecer parecer;
 }
