@@ -3,6 +3,7 @@ package br.com.gatekeeper.controle_acessos.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List; // <--- A LINHA QUE FALTAVA PARA RESOLVER O ERRO!
 
 @Data
 @Entity
@@ -31,4 +32,7 @@ public class Parecer {
     @ManyToOne
     @JoinColumn(name = "usuario_responsavel_id", nullable = false)
     private Usuario usuarioResponsavel;
+
+    @OneToMany(mappedBy = "parecer")
+    private List<Notificacao> notificacoes; // Agora o Java sabe o que é isso!
 }

@@ -12,7 +12,8 @@ import java.util.List;
 @RequestMapping("/api/notificacoes")
 public class NotificacaoController {
 
-    @Autowired private NotificacaoService service;
+    @Autowired 
+    private NotificacaoService service;
 
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<NotificacaoResponseDTO>> buscarPorUsuario(@PathVariable Integer usuarioId) {

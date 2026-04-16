@@ -64,9 +64,9 @@ public class ParecerService {
         Notificacao notificacao = new Notificacao();
         notificacao.setMensagem("Sua solicitação " + solicitacao.getProtocolo() + " foi " + parecer.getDecisao());
         notificacao.setDataEnvio(LocalDateTime.now());
-        notificacao.setDecisao(parecer.getDecisao());
-        notificacao.setSolicitacao(solicitacao);
-        notificacao.setUsuario(solicitacao.getUsuario());
+        notificacao.setDecisao(parecer.getDecisao());        
+        notificacao.setParecer(parecer); 
+        
         notificacaoRepository.save(notificacao);
 
         // 7. Devolve o DTO mapeado (Limpo e profissional)
