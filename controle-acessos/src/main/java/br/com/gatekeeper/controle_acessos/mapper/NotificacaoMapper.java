@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface NotificacaoMapper {
 
-    @Mapping(target = "protocoloSolicitacao", source = "solicitacao.protocolo")
+    // A mágica acontece aqui: navegando até o protocolo!
+    @Mapping(target = "protocoloSolicitacao", source = "parecer.solicitacao.protocolo")
     NotificacaoResponseDTO toDTO(Notificacao notificacao);
 }
