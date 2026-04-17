@@ -27,4 +27,18 @@ public class ModuloController {
     public ResponseEntity<List<ModuloDTO>> listarTodos() {
         return ResponseEntity.ok(service.listarTodos());
     }
+
+    // 3. ATUALIZAR (PUT)
+    @PutMapping("/{id}")
+    public ResponseEntity<ModuloDTO> atualizar(@PathVariable Integer id, @RequestBody ModuloDTO dto) {
+        return ResponseEntity.ok(service.atualizar(id, dto));
+    }
+
+    // 4. DELETAR (DELETE)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
+        service.deletar(id);
+        // Retorna 204 No Content (Sucesso, mas sem corpo na resposta)
+        return ResponseEntity.noContent().build(); 
+    }
 }

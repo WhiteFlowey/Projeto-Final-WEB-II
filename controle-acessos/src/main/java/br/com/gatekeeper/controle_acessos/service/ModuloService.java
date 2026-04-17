@@ -31,4 +31,32 @@ public class ModuloService {
                 .map(mapper::toDTO)
                 .toList();
     }
+
+    public ModuloDTO atualizar(Integer id, ModuloDTO dto) {
+        // Busca o módulo existente no banco de dados
+        Modulo moduloExistente = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Módulo não encontrado com o ID: " + id));
+
+        // Atualiza apenas os campos que vieram preenchidos no DTO
+        if (dto.getNome() != null && !dto.getNome().isEmpty()) {
+            moduloExistente.setNome(dto.getNome());
+        }
+        if (dto.getDescricao() != null) {
+            moduloExistente.setDescricao(dto.getDescricao());
+        }
+
+        // Salva no banco 
+        moduloExistente = repository.save(moduloExistente);
+
+        // converte de volta para DTO para mostrar na resposta
+        return mapper.toDTO(moduloExistente);
+    }
+
+    public void deletar(Integer id) {
+        // Verifica se existe antes de tentar deletar
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Módulo não encontrado com o ID: " + id);
+        }
+        repository.deleteById(id);
+    }
 }
