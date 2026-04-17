@@ -29,4 +29,20 @@ public class DepartamentoController {
     public ResponseEntity<List<DepartamentoDTO>> listarTodos() {
         return ResponseEntity.ok(service.listarTodos());
     }
+
+    // 3. Atualiza um departamento existente
+    @PutMapping("/{id}")
+    public ResponseEntity<DepartamentoDTO> atualizar(@PathVariable Integer id, @Valid @RequestBody DepartamentoDTO dto) {
+        // Confirme se o nome do método no seu Service é 'atualizar' mesmo!
+        DepartamentoDTO atualizado = service.atualizar(id, dto); 
+        return ResponseEntity.ok(atualizado);
+    }
+
+    // 4. Deleta um departamento pelo ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
+        // Confirme se o nome do método no seu Service é 'deletar' ou 'excluir'!
+        service.deletar(id); 
+        return ResponseEntity.noContent().build(); // Retorna 204 No Content (Sucesso, sem corpo)
+    }
 }

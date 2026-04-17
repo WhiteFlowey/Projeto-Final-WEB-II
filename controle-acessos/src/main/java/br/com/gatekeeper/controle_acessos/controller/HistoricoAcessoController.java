@@ -1,5 +1,6 @@
 package br.com.gatekeeper.controle_acessos.controller;
 
+import br.com.gatekeeper.controle_acessos.dto.request.HistoricoAcessoRequestDTO;
 import br.com.gatekeeper.controle_acessos.dto.response.HistoricoAcessoResponseDTO;
 import br.com.gatekeeper.controle_acessos.model.HistoricoAcesso;
 import br.com.gatekeeper.controle_acessos.service.HistoricoAcessoService;
@@ -17,5 +18,12 @@ public class HistoricoAcessoController {
    @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<HistoricoAcessoResponseDTO>> buscarHistoricoDoUsuario(@PathVariable Integer usuarioId) {
         return ResponseEntity.ok(service.buscarHistoricoDoUsuario(usuarioId));
+    }
+
+    // POST /api/historicos
+    @PostMapping
+    public ResponseEntity<HistoricoAcessoResponseDTO> registrarAcesso(@RequestBody HistoricoAcessoRequestDTO dto) {
+        HistoricoAcessoResponseDTO registrado = service.registrarAcesso(dto);
+        return ResponseEntity.status(201).body(registrado);
     }
 }

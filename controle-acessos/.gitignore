@@ -31,3 +31,11 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+# Configurações do VS Code
+.vscode/
+*.code-workspace
+
+# Se tiver arquivos JSON soltos de ambiente (opcional)
+*.json

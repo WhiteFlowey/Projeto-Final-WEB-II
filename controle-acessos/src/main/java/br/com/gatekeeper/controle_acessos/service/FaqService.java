@@ -43,4 +43,29 @@ public class FaqService {
                 .map(mapper::toDTO)
                 .toList();
     }
+
+    @Transactional
+    public FaqResponseDTO atualizarFaq(Integer id, FaqRequestDTO dto) {
+        // 1. Busca o FAQ pelo ID dele mesmo
+        FAQ faq = faqRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("FAQ não encontrado com o ID: " + id));
+
+        // 2. Atualiza apenas a pergunta e a resposta (o módulo continua o mesmo)
+        faq.setPergunta(dto.getPergunta());
+        faq.setResposta(dto.getResposta());
+
+        // 3. Salva e converte para DTO
+        faq = faqRepository.save(faq);
+        return mapper.toDTO(faq);
+    }
+
+    @Transactional
+    public void deletarFaq(Integer id) {
+        // 1. Verifica se o FAQ existe
+        FAQ faq = faqRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("FAQ não encontrado com o ID: " + id));
+
+        // 2. Deleta do banco
+        faqRepository.delete(faq);
+    }
 }

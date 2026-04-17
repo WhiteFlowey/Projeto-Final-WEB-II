@@ -31,4 +31,18 @@ public class FaqController {
     public ResponseEntity<List<FaqResponseDTO>> listarPorModulo(@PathVariable Integer moduloId) {
         return ResponseEntity.ok(service.listarPorModulo(moduloId));
     }
+
+    // 3. Atualizar um FAQ existente (PUT /api/faqs/{id})
+    @PutMapping("/{id}")
+    public ResponseEntity<FaqResponseDTO> atualizarFaq(@PathVariable Integer id, @Valid @RequestBody FaqRequestDTO dto) {
+        FaqResponseDTO atualizado = service.atualizarFaq(id, dto);
+        return ResponseEntity.ok(atualizado);
+    }
+
+    // 4. Deletar um FAQ (DELETE /api/faqs/{id})
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarFaq(@PathVariable Integer id) {
+        service.deletarFaq(id);
+        return ResponseEntity.noContent().build();
+    }
 }
