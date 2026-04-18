@@ -1,7 +1,7 @@
 package br.com.gatekeeper.controle_acessos.repository;
 
 import br.com.gatekeeper.controle_acessos.model.Solicitacao;
-import br.com.gatekeeper.controle_acessos.model.enums.StatusSolicitacao;
+import br.com.gatekeeper.controle_acessos.model.enums.SolicitacaoStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,5 +17,5 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Intege
     Solicitacao findByProtocolo(String protocolo);
     
     // Lista as solicitações filtrando pelo status (ex: buscar todas as PENDENTES)
-    List<Solicitacao> findByStatus(StatusSolicitacao status);
+    List<Solicitacao> findByStatus(SolicitacaoStatus status);
 }

@@ -1,6 +1,6 @@
 package br.com.gatekeeper.controle_acessos.dto.response;
 
-import br.com.gatekeeper.controle_acessos.model.enums.StatusHistoricoAcesso;
+import br.com.gatekeeper.controle_acessos.model.enums.HistoricoAcessoStatus;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -10,5 +10,5 @@ public class HistoricoAcessoResponseDTO {
     private String nomeModulo;
     private LocalDateTime dataInicio;
     private LocalDateTime dataFim;
-    private StatusHistoricoAcesso status;
+    private HistoricoAcessoStatus status;
 }

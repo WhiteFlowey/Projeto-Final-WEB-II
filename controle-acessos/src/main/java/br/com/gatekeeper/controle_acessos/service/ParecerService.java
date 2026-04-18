@@ -4,8 +4,8 @@ import br.com.gatekeeper.controle_acessos.dto.request.ParecerRequestDTO;
 import br.com.gatekeeper.controle_acessos.dto.response.ParecerResponseDTO;
 import br.com.gatekeeper.controle_acessos.mapper.ParecerMapper; // 1. Importar o mapper
 import br.com.gatekeeper.controle_acessos.model.*;
-import br.com.gatekeeper.controle_acessos.model.enums.StatusHistoricoAcesso;
-import br.com.gatekeeper.controle_acessos.model.enums.StatusSolicitacao;
+import br.com.gatekeeper.controle_acessos.model.enums.HistoricoAcessoStatus;
+import br.com.gatekeeper.controle_acessos.model.enums.SolicitacaoStatus;
 import br.com.gatekeeper.controle_acessos.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,18 +45,18 @@ public class ParecerService {
 
         // 5. Fluxo de Decisão Automática
         if (parecer.getDecisao().equalsIgnoreCase("APROVADA")) {
-            solicitacao.setStatus(StatusSolicitacao.APROVADA);
+            solicitacao.setStatus(SolicitacaoStatus.APROVADA);
             
             // Criação do histórico (Lógica de Negócio permanece aqui)
             HistoricoAcesso historico = new HistoricoAcesso();
             historico.setDataInicio(LocalDateTime.now());
-            historico.setStatus(StatusHistoricoAcesso.ATIVO);
+            historico.setStatus(HistoricoAcessoStatus.ATIVO);
             historico.setUsuario(solicitacao.getUsuario());
             historico.setModulo(solicitacao.getModulo());
             historicoRepository.save(historico);
             
         } else {
-            solicitacao.setStatus(StatusSolicitacao.REJEITADA);
+            solicitacao.setStatus(SolicitacaoStatus.REJEITADA);
         }
         solicitacaoRepository.save(solicitacao);
 

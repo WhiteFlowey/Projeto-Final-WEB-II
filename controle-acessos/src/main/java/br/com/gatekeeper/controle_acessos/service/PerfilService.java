@@ -35,4 +35,15 @@ public class PerfilService {
                 .map(mapper::toDTO)
                 .toList();
     }
+
+    public Perfil atualizar(Integer id, Perfil dados) {
+        Perfil perfil = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
+
+        perfil.setNome(dados.getNome());
+        perfil.setDescricao(dados.getDescricao());
+
+        return repository.save(perfil);
+    }
+
 }

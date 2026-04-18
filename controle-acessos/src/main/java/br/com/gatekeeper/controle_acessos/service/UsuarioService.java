@@ -6,7 +6,7 @@ import br.com.gatekeeper.controle_acessos.mapper.UsuarioMapper;
 import br.com.gatekeeper.controle_acessos.model.Departamento;
 import br.com.gatekeeper.controle_acessos.model.Perfil;
 import br.com.gatekeeper.controle_acessos.model.Usuario;
-import br.com.gatekeeper.controle_acessos.model.enums.StatusUsuario;
+import br.com.gatekeeper.controle_acessos.model.enums.UsuarioStatus;
 import br.com.gatekeeper.controle_acessos.repository.DepartamentoRepository;
 import br.com.gatekeeper.controle_acessos.repository.PerfilRepository;
 import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
@@ -55,7 +55,7 @@ public class UsuarioService {
         // 4. Configurando as relações e status manualmente (pois vêm de IDs específicos)
         usuario.setDepartamento(departamento);
         usuario.setPerfil(perfil);
-        usuario.setStatus(StatusUsuario.valueOf(request.getStatus().toUpperCase()));
+        usuario.setStatus(UsuarioStatus.valueOf(request.getStatus().toUpperCase()));
 
         // 5. Persistência
         usuario = usuarioRepository.save(usuario);

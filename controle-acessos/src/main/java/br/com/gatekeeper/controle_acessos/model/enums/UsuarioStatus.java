@@ -1,7 +1,6 @@
 package br.com.gatekeeper.controle_acessos.model.enums;
 
-public enum StatusHistoricoAcesso {
+public enum UsuarioStatus {
     ATIVO,
-    ENCERRADO,
-    REVOGADO
+    INATIVO
 }

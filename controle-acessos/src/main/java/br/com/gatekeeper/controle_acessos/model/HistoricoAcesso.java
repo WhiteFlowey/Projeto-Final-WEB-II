@@ -1,6 +1,6 @@
 package br.com.gatekeeper.controle_acessos.model;
 
-import br.com.gatekeeper.controle_acessos.model.enums.StatusHistoricoAcesso;
+import br.com.gatekeeper.controle_acessos.model.enums.HistoricoAcessoStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -24,7 +24,7 @@ public class HistoricoAcesso {
     // Mapeamento do Enum
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private StatusHistoricoAcesso status;
+    private HistoricoAcessoStatus status;
 
     // Relacionamento com o Usuário que obteve o acesso
     @ManyToOne

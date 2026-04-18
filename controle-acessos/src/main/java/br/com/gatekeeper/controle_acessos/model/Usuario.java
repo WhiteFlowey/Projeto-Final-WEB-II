@@ -1,6 +1,6 @@
 package br.com.gatekeeper.controle_acessos.model;
 
-import br.com.gatekeeper.controle_acessos.model.enums.StatusUsuario;
+import br.com.gatekeeper.controle_acessos.model.enums.UsuarioStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import jakarta.persistence.*;
@@ -29,7 +29,7 @@ public class Usuario implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StatusUsuario status;
+    private UsuarioStatus status;
 
     @ManyToOne
     @JoinColumn(name = "departamento_id", nullable = false)
@@ -78,6 +78,6 @@ public class Usuario implements UserDetails {
     @Override
     public boolean isEnabled() {
         // O usuário só consegue logar se o status dele for ATIVO
-        return this.status == StatusUsuario.ATIVO;
+        return this.status == UsuarioStatus.ATIVO;
     }
 }
