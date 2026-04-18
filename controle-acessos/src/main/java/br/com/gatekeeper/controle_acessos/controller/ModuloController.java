@@ -19,13 +19,13 @@ public class ModuloController {
     private ModuloService service;
 
     @PostMapping
-    public ResponseEntity<ModuloDTO> salvar(@Valid @RequestBody ModuloDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.salvar(dto));
+    public ResponseEntity<ModuloDTO> criarModulo(@Valid @RequestBody ModuloDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.criarModulo(dto));
     }
 
     @GetMapping
-    public ResponseEntity<List<ModuloDTO>> listarTodos() {
-        return ResponseEntity.ok(service.listarTodos());
+    public ResponseEntity<List<ModuloDTO>> listarTodosModulos() {
+        return ResponseEntity.ok(service.listarTodosModulos());
     }
 
     // 3. ATUALIZAR (PUT)
@@ -40,5 +40,11 @@ public class ModuloController {
         service.deletar(id);
         // Retorna 204 No Content (Sucesso, mas sem corpo na resposta)
         return ResponseEntity.noContent().build(); 
+    }
+
+    // 5. BUSCAR POR ID (GET)
+    @GetMapping("/{id}")
+    public ResponseEntity<ModuloDTO> buscarPorId(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.buscarPorId(id));
     }
 }

@@ -1,6 +1,7 @@
 package br.com.gatekeeper.controle_acessos.controller;
 
 import br.com.gatekeeper.controle_acessos.dto.PerfilDTO;
+import br.com.gatekeeper.controle_acessos.model.Perfil;
 import br.com.gatekeeper.controle_acessos.service.PerfilService;
 import jakarta.validation.Valid;
 
@@ -27,4 +28,15 @@ public class PerfilController {
     public ResponseEntity<List<PerfilDTO>> listarTodos() {
         return ResponseEntity.ok(service.listarTodos());
     }
+
+        @PutMapping("/api/perfis/{id}")
+        public ResponseEntity<Perfil> atualizar(
+            @PathVariable Integer id,
+            @RequestBody Perfil dados) {
+
+        Perfil perfilAtualizado = service.atualizar(id, dados);
+
+        return ResponseEntity.ok(perfilAtualizado);
+    }
+
 }

@@ -1,7 +1,7 @@
 package br.com.gatekeeper.controle_acessos.repository;
 
 import br.com.gatekeeper.controle_acessos.model.HistoricoAcesso;
-import br.com.gatekeeper.controle_acessos.model.enums.StatusHistoricoAcesso;
+import br.com.gatekeeper.controle_acessos.model.enums.HistoricoAcessoStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,5 +14,5 @@ public interface HistoricoAcessoRepository extends JpaRepository<HistoricoAcesso
     List<HistoricoAcesso> findByUsuarioId(Integer usuarioId);
     
     // Filtra históricos pelo seu estado (ex: encontrar todos os acessos atualmente ATIVOS)
-    List<HistoricoAcesso> findByStatus(StatusHistoricoAcesso status);
+    List<HistoricoAcesso> findByStatus(HistoricoAcessoStatus status);
 }

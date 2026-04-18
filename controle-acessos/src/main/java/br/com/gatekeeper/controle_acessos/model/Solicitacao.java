@@ -1,6 +1,6 @@
 package br.com.gatekeeper.controle_acessos.model;
 
-import br.com.gatekeeper.controle_acessos.model.enums.StatusSolicitacao;
+import br.com.gatekeeper.controle_acessos.model.enums.SolicitacaoStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -23,7 +23,7 @@ public class Solicitacao {
     // Mapeamento do Enum para gravar o texto no banco
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private StatusSolicitacao status;
+    private SolicitacaoStatus status;
 
     @Column(name = "data_solicitacao", nullable = false)
     private LocalDateTime dataSolicitacao;

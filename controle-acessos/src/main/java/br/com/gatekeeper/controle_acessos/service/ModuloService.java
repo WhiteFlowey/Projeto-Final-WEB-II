@@ -18,14 +18,14 @@ public class ModuloService {
     @Autowired
     private ModuloMapper mapper; // 1. Injetando o nosso Mapper
 
-    public ModuloDTO salvar(ModuloDTO dto) {
+    public ModuloDTO criarModulo(ModuloDTO dto) {
         // Converte o DTO para Entidade, salva e devolve como DTO
         Modulo modulo = mapper.toEntity(dto);
         modulo = repository.save(modulo);
         return mapper.toDTO(modulo);
     }
 
-    public List<ModuloDTO> listarTodos() {
+    public List<ModuloDTO> listarTodosModulos() {
         // Listagem limpa em uma linha
         return repository.findAll().stream()
                 .map(mapper::toDTO)
@@ -59,4 +59,14 @@ public class ModuloService {
         }
         repository.deleteById(id);
     }
+
+    // 5. BUSCAR POR ID (LER UM)
+    public ModuloDTO buscarPorId(Integer id) {
+        Modulo modulo = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Módulo não encontrado com o ID: " + id));
+        
+        return mapper.toDTO(modulo);
+    }
+
+    
 }

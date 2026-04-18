@@ -6,7 +6,7 @@ import br.com.gatekeeper.controle_acessos.mapper.SolicitacaoMapper; // 1. Import
 import br.com.gatekeeper.controle_acessos.model.Modulo;
 import br.com.gatekeeper.controle_acessos.model.Solicitacao;
 import br.com.gatekeeper.controle_acessos.model.Usuario;
-import br.com.gatekeeper.controle_acessos.model.enums.StatusSolicitacao;
+import br.com.gatekeeper.controle_acessos.model.enums.SolicitacaoStatus;
 import br.com.gatekeeper.controle_acessos.repository.ModuloRepository;
 import br.com.gatekeeper.controle_acessos.repository.SolicitacaoRepository;
 import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
@@ -44,7 +44,7 @@ public class SolicitacaoService {
         solicitacao.setUsuario(usuario);
         solicitacao.setModulo(modulo);
         solicitacao.setDataSolicitacao(LocalDateTime.now());
-        solicitacao.setStatus(StatusSolicitacao.PENDENTE);
+        solicitacao.setStatus(SolicitacaoStatus.PENDENTE);
         solicitacao.setProtocolo(gerarProtocolo());
 
         solicitacao = solicitacaoRepository.save(solicitacao);
