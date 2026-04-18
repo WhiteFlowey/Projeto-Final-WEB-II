@@ -55,7 +55,7 @@ public class UsuarioService {
         // 4. Configurando as relações e status manualmente (pois vêm de IDs específicos)
         usuario.setDepartamento(departamento);
         usuario.setPerfil(perfil);
-        usuario.setStatus(UsuarioStatus.valueOf(request.getStatus().toUpperCase()));
+        usuario.setStatus(UsuarioStatus.ATIVO);
 
         // 5. Persistência
         usuario = usuarioRepository.save(usuario);

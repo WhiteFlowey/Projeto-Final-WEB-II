@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ParecerService {
@@ -72,4 +73,11 @@ public class ParecerService {
         // 7. Devolve o DTO mapeado (Limpo e profissional)
         return parecerMapper.toDTO(parecer);
     }
+
+    public List<ParecerResponseDTO> listarTodos() {
+    return parecerRepository.findAll()
+            .stream()
+            .map(parecerMapper::toDTO)
+            .toList();
+}
 }

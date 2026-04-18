@@ -39,7 +39,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
             var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            System.out.println("5. Autenticação forçada no Spring com sucesso!");
+            System.out.println("5. Logado com sucesso!");
         }
 
         filterChain.doFilter(request, response);

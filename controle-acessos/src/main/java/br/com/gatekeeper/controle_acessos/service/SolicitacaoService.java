@@ -2,7 +2,7 @@ package br.com.gatekeeper.controle_acessos.service;
 
 import br.com.gatekeeper.controle_acessos.dto.request.SolicitacaoRequestDTO;
 import br.com.gatekeeper.controle_acessos.dto.response.SolicitacaoResponseDTO;
-import br.com.gatekeeper.controle_acessos.mapper.SolicitacaoMapper; // 1. Importar o mapper
+import br.com.gatekeeper.controle_acessos.mapper.SolicitacaoMapper; 
 import br.com.gatekeeper.controle_acessos.model.Modulo;
 import br.com.gatekeeper.controle_acessos.model.Solicitacao;
 import br.com.gatekeeper.controle_acessos.model.Usuario;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -59,5 +60,19 @@ public class SolicitacaoService {
         return "REQ-" + ano + "-" + codigoAleatorio;
     }
     
+    //LISTAR TODAS (Para o Admin)
+    public List<SolicitacaoResponseDTO> listarTodas() {
+        return solicitacaoRepository.findAll().stream()
+                .map(solicitacaoMapper::toDTO)
+                .toList();
+    }
+
+    //LISTAR POR USUÁRIO (Para a tela "Minhas Solicitações" do Colaborador)
+    public List<SolicitacaoResponseDTO> listarPorUsuario(Integer usuarioId) {
+        // Atenção: Você precisará criar o método findByUsuarioId no SolicitacaoRepository!
+        return solicitacaoRepository.findByUsuarioId(usuarioId).stream()
+                .map(solicitacaoMapper::toDTO)
+                .toList();
+    }
   
 }
