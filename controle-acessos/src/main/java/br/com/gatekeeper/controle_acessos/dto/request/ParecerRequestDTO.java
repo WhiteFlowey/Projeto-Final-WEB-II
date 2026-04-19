@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class ParecerRequestDTO {
     private String descricao;
-    private String decisao; // Ex: "DEFERIDO", "INDEFERIDO"
+    private String decisao; 
     private Integer solicitacaoId;
     private Integer usuarioResponsavelId;
 }

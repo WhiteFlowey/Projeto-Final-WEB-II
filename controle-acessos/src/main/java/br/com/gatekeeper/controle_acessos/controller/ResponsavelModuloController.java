@@ -1,7 +1,7 @@
 package br.com.gatekeeper.controle_acessos.controller;
 
 import br.com.gatekeeper.controle_acessos.dto.ResponsavelModuloDTO;
-import br.com.gatekeeper.controle_acessos.model.ResponsavelModulo;
+import br.com.gatekeeper.controle_acessos.dto.request.ResponsavelModuloRequestDTO;
 import br.com.gatekeeper.controle_acessos.service.ResponsavelModuloService;
 import jakarta.validation.Valid;
 
@@ -19,16 +19,24 @@ public class ResponsavelModuloController {
     @Autowired
     private ResponsavelModuloService service;
 
-    // Repare que agora o ResponseEntity devolve o ResponsavelModuloDTO
     @PostMapping
-    public ResponseEntity<ResponsavelModuloDTO> definirResponsavel(@Valid @RequestBody ResponsavelModulo responsavel) {
-        ResponsavelModuloDTO novoResponsavel = service.definirResponsavel(responsavel);
+    public ResponseEntity<ResponsavelModuloDTO> definirResponsavel(
+            @Valid @RequestBody ResponsavelModuloRequestDTO dto) {
+
+        ResponsavelModuloDTO novoResponsavel = service.definirResponsavel(dto);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(novoResponsavel);
     }
 
-    // A lista também devolve os DTOs
     @GetMapping("/modulo/{moduloId}")
-    public ResponseEntity<List<ResponsavelModuloDTO>> listarPorModulo(@PathVariable Integer moduloId) {
+    public ResponseEntity<List<ResponsavelModuloDTO>> listarPorModulo(
+            @PathVariable Integer moduloId) {
+
         return ResponseEntity.ok(service.listarPorModulo(moduloId));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ResponsavelModuloDTO>> listarTodos() {
+        return ResponseEntity.ok(service.listarTodos());
     }
 }
