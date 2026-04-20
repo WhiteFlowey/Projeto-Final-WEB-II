@@ -2,7 +2,7 @@ package br.com.gatekeeper.controle_acessos.service;
 
 import br.com.gatekeeper.controle_acessos.dto.request.ParecerRequestDTO;
 import br.com.gatekeeper.controle_acessos.dto.response.ParecerResponseDTO;
-import br.com.gatekeeper.controle_acessos.mapper.ParecerMapper; // 1. Importar o mapper
+import br.com.gatekeeper.controle_acessos.mapper.ParecerMapper;
 import br.com.gatekeeper.controle_acessos.model.*;
 import br.com.gatekeeper.controle_acessos.model.enums.HistoricoAcessoStatus;
 import br.com.gatekeeper.controle_acessos.model.enums.SolicitacaoStatus;
@@ -23,7 +23,6 @@ public class ParecerService {
     @Autowired private HistoricoAcessoRepository historicoRepository;
     @Autowired private NotificacaoRepository notificacaoRepository;
     
-    // 2. Injetar o Mapper
     @Autowired private ParecerMapper parecerMapper;
 
     @Transactional 
@@ -35,33 +34,39 @@ public class ParecerService {
         Usuario avaliador = usuarioRepository.findById(request.getUsuarioResponsavelId())
                 .orElseThrow(() -> new RuntimeException("Avaliador não encontrado"));
 
-        // 3. O Mapper cria a entidade baseada no request
         Parecer parecer = parecerMapper.toEntity(request);
         
-        // 4. Regras de Negócio e Relacionamentos
         parecer.setDataParecer(LocalDateTime.now());
         parecer.setSolicitacao(solicitacao);
         parecer.setUsuarioResponsavel(avaliador);
         parecer = parecerRepository.save(parecer);
 
-        // 5. Fluxo de Decisão Automática
+        // Preparamos o Histórico base (comum para Aprovado ou Negado)
+        HistoricoAcesso historico = new HistoricoAcesso();
+        historico.setDataInicio(LocalDateTime.now());
+        historico.setUsuario(solicitacao.getUsuario());
+        historico.setModulo(solicitacao.getModulo());
+
+        // Fluxo de Decisão Automática
         if (parecer.getDecisao().equalsIgnoreCase("APROVADA")) {
             solicitacao.setStatus(SolicitacaoStatus.APROVADA);
             
-            // Criação do histórico (Lógica de Negócio permanece aqui)
-            HistoricoAcesso historico = new HistoricoAcesso();
-            historico.setDataInicio(LocalDateTime.now());
             historico.setStatus(HistoricoAcessoStatus.ATIVO);
-            historico.setUsuario(solicitacao.getUsuario());
-            historico.setModulo(solicitacao.getModulo());
-            historicoRepository.save(historico);
+            // Adiciona a quantidade de dias solicitados na data de hoje
+            historico.setDataFim(LocalDateTime.now().plusDays(solicitacao.getQtdDias()));
             
         } else {
             solicitacao.setStatus(SolicitacaoStatus.REJEITADA);
+            
+            // Registra no histórico que a tentativa existiu, mas foi barrada
+            historico.setStatus(HistoricoAcessoStatus.NEGADO);
+            historico.setDataFim(LocalDateTime.now()); // Encerra o prazo no mesmo segundo
         }
+        
+        historicoRepository.save(historico);
         solicitacaoRepository.save(solicitacao);
 
-        // 6. Notificação Automática
+        // Notificação Automática
         Notificacao notificacao = new Notificacao();
         notificacao.setMensagem("Sua solicitação " + solicitacao.getProtocolo() + " foi " + parecer.getDecisao());
         notificacao.setDataEnvio(LocalDateTime.now());
@@ -70,14 +75,14 @@ public class ParecerService {
         
         notificacaoRepository.save(notificacao);
 
-        // 7. Devolve o DTO mapeado (Limpo e profissional)
         return parecerMapper.toDTO(parecer);
     }
 
+    
     public List<ParecerResponseDTO> listarTodos() {
-    return parecerRepository.findAll()
-            .stream()
-            .map(parecerMapper::toDTO)
-            .toList();
-}
+        return parecerRepository.findAll()
+                .stream()
+                .map(parecerMapper::toDTO)
+                .toList();
+    }
 }
