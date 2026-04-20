@@ -20,6 +20,9 @@ public class Solicitacao {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String justificativa;
 
+    @Column(name = "qtd_dias", nullable = false)
+    private Integer qtdDias;
+
     // Mapeamento do Enum para gravar o texto no banco
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
