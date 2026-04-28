@@ -9,9 +9,11 @@ import java.util.List;
 @Repository
 public interface ResponsavelModuloRepository extends JpaRepository<ResponsavelModulo, Integer> {
     
-    // Descobre quem são (ou foram) os responsáveis por um módulo
+    // Descobre quem são os responsáveis por um módulo
     List<ResponsavelModulo> findByModuloId(Integer moduloId);
     
     // Descobre de quais módulos um utilizador específico é responsável
     List<ResponsavelModulo> findByUsuarioId(Integer usuarioId);
+    // Busca por parte do nome do usuário (Ignora maiúsculas/minúsculas)
+    List<ResponsavelModulo> findByUsuarioNomeContainingIgnoreCase(String nome);
 }

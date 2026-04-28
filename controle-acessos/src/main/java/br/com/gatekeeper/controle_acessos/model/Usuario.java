@@ -27,6 +27,9 @@ public class Usuario implements UserDetails {
     @Column(nullable = false, length = 255)
     private String senha;
 
+    @Column(name = "registro_empregado")
+    private String registroEmpregado;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UsuarioStatus status;

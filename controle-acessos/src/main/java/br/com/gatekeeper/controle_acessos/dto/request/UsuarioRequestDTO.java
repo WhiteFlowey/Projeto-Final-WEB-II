@@ -21,4 +21,5 @@ public class UsuarioRequestDTO {
     private Integer departamentoId;
     
     private Integer perfilId;
+    private String registroEmpregado;
 }
