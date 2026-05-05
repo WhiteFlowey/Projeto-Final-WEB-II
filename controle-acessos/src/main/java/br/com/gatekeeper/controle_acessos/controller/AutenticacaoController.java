@@ -37,6 +37,5 @@ public class AutenticacaoController {
         var tokenJWT = tokenService.gerarToken(usuarioLogado);
 
         // Devolve o token no formato JSON
-        return ResponseEntity.ok(new DadosTokenJWT(tokenJWT));
-    }
+        return ResponseEntity.ok(new DadosTokenJWT(tokenJWT, "Login realizado com sucesso, bem-vindo!"));    }
 }
