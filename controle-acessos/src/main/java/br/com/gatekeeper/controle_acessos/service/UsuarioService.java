@@ -33,6 +33,10 @@ public class UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Perfil não encontrado")));
         usuario.setStatus(UsuarioStatus.ATIVO);
 
+        String anoAtual = String.valueOf(java.time.Year.now().getValue());
+        int sequencialMock = new java.util.Random().nextInt(90) + 10; 
+        usuario.setRegistroEmpregado("RE-" + anoAtual + "-TST-" + sequencialMock);
+
         return usuarioMapper.toDTO(usuarioRepository.save(usuario));
     }
 
@@ -47,7 +51,7 @@ public class UsuarioService {
         return usuarioMapper.toDTO(usuario);
     }
 
-    // ➕ Novo: Lógica para Atualizar
+    // Lógica para Atualizar
     @Transactional
     public UsuarioResponseDTO atualizarUsuario(Integer id, UsuarioRequestDTO request) {
         Usuario usuario = usuarioRepository.findById(id)
@@ -55,7 +59,6 @@ public class UsuarioService {
         
         usuario.setNome(request.getNome());
         usuario.setEmail(request.getEmail());
-        usuario.setRegistroEmpregado(request.getRegistroEmpregado()); 
         
         if (request.getSenha() != null && !request.getSenha().isEmpty()) {
             usuario.setSenha(passwordEncoder.encode(request.getSenha()));
