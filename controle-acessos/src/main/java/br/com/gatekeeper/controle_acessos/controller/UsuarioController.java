@@ -28,19 +28,19 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.listarTodos());
     }
 
-    // ➕ Novo: Buscar por ID
+    // Buscar por ID
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> buscarPorId(@PathVariable Integer id) {
         return ResponseEntity.ok(usuarioService.buscarPorId(id));
     }
 
-    // ➕ Novo: Atualizar
+    //  Atualizar
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Integer id, @Valid @RequestBody UsuarioRequestDTO request) {
         return ResponseEntity.ok(usuarioService.atualizarUsuario(id, request));
     }
 
-    // ➕ Novo: Remover
+    // Remover
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Integer id) {
         usuarioService.removerUsuario(id);

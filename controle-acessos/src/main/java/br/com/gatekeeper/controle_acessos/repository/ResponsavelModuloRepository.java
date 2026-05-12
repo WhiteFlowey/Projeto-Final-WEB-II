@@ -8,7 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ResponsavelModuloRepository extends JpaRepository<ResponsavelModulo, Integer> {
-    
     // Descobre quem são os responsáveis por um módulo
     List<ResponsavelModulo> findByModuloId(Integer moduloId);
     

@@ -29,6 +29,7 @@ public class ResponsavelModuloService {
         ResponsavelModulo novo = new ResponsavelModulo();
         novo.setUsuario(usu);
         novo.setModulo(mod);
+        // Ao atribuir um novo responsável, o sistema automaticamente registra a data de início da responsabilidade
         novo.setDataInicio(LocalDateTime.now());
         
         return mapper.toDTO(repository.save(novo));
