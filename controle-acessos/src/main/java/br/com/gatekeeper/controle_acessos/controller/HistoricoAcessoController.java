@@ -2,7 +2,6 @@ package br.com.gatekeeper.controle_acessos.controller;
 
 import br.com.gatekeeper.controle_acessos.dto.request.HistoricoAcessoRequestDTO;
 import br.com.gatekeeper.controle_acessos.dto.response.HistoricoAcessoResponseDTO;
-import br.com.gatekeeper.controle_acessos.model.HistoricoAcesso;
 import br.com.gatekeeper.controle_acessos.service.HistoricoAcessoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

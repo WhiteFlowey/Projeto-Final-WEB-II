@@ -27,7 +27,7 @@ public class TokenService {
             
             return JWT.create()
                     .withIssuer("API Gatekeeper") // Quem está emitindo o token
-                    .withSubject(usuario.getEmail()) // Quem é o dono do token (vamos usar o e-mail)
+                    .withSubject(usuario.getEmail()) // Quem é o dono do token (e-mail)
                     .withExpiresAt(dataExpiracao()) // Quando o token vence
                     .sign(algoritmo); // Assina e finaliza
                     

@@ -15,7 +15,7 @@ public class FAQ {
     @Column(nullable = false, length = 255)
     private String pergunta;
 
-    // Usamos TEXT porque a resposta do FAQ pode ser bem longa
+    // TEXT porque a resposta do FAQ pode ser bem longa
     @Column(nullable = false, columnDefinition = "TEXT")
     private String resposta;
 

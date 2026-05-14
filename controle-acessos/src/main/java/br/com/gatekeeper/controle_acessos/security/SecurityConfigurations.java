@@ -27,7 +27,7 @@ public class SecurityConfigurations {
         return http.csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
-                    req.requestMatchers(HttpMethod.POST, "/login").permitAll(); // Libera o login
+                    req.requestMatchers(HttpMethod.POST, "/login").permitAll(); // Libera o login, lembrar de tirar depois do desenvolvimento dos perfis
                     req.anyRequest().authenticated(); // Bloqueia todo o resto
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class) 
@@ -50,13 +50,11 @@ public class SecurityConfigurations {
                 .build();
     }
 
-    // Ensina o Spring a injetar o gerenciador de autenticação no nosso futuro Controller
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
-    // Ensina o Spring qual é o algoritmo de criptografia que usamos no banco de dados (o Flyway)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

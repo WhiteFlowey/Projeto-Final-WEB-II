@@ -33,7 +33,7 @@ public class AutenticacaoController {
         // Pega o usuário que acabou de ser validado com sucesso
         var usuarioLogado = (Usuario) authentication.getPrincipal();
         
-        // Manda a nossa "fábrica" gerar o token para esse usuário
+        // Gera o token para esse usuário
         var tokenJWT = tokenService.gerarToken(usuarioLogado);
 
         // Devolve o token no formato JSON

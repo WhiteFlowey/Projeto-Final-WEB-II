@@ -42,9 +42,7 @@ public class Usuario implements UserDetails {
     @JoinColumn(name = "perfil_id", nullable = false)
     private Perfil perfil;
 
-    // =========================================================================
     // MÉTODOS DO CONTRATO USERDETAILS (SPRING SECURITY)
-    // =========================================================================
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -59,7 +57,6 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        // Informamos ao Spring que o login será feito usando o e-mail
         return this.email;
     }
 

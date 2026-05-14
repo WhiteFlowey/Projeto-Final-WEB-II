@@ -19,27 +19,27 @@ public class FaqController {
     @Autowired
     private FaqService service;
 
-    // 1. Mudamos para receber FaqRequestDTO e devolver FaqResponseDTO
+    // Recebe FaqRequestDTO e devolver FaqResponseDTO
     @PostMapping("/modulo/{moduloId}")
     public ResponseEntity<FaqResponseDTO> criarFaq(@Valid @RequestBody FaqRequestDTO dto, @PathVariable Integer moduloId) {
         FaqResponseDTO novoFaq = service.criarFaq(dto, moduloId);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoFaq);
     }
 
-    // 2. Mudamos para devolver uma lista de FaqResponseDTO
+    // Devolve uma lista de FaqResponseDTO
     @GetMapping("/modulo/{moduloId}")
     public ResponseEntity<List<FaqResponseDTO>> listarPorModulo(@PathVariable Integer moduloId) {
         return ResponseEntity.ok(service.listarPorModulo(moduloId));
     }
 
-    // 3. Atualizar um FAQ existente (PUT /api/faqs/{id})
+    // Atualiza um FAQ existente (PUT /api/faqs/{id})
     @PutMapping("/{id}")
     public ResponseEntity<FaqResponseDTO> atualizarFaq(@PathVariable Integer id, @Valid @RequestBody FaqRequestDTO dto) {
         FaqResponseDTO atualizado = service.atualizarFaq(id, dto);
         return ResponseEntity.ok(atualizado);
     }
 
-    // 4. Deletar um FAQ (DELETE /api/faqs/{id})
+    // Deletar um FAQ (DELETE /api/faqs/{id})
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarFaq(@PathVariable Integer id) {
         service.deletarFaq(id);

@@ -11,9 +11,8 @@ import java.util.List;
 @Repository
 public interface NotificacaoRepository extends JpaRepository<Notificacao, Integer> {
 
-    // A mágica acontece aqui: Navegamos da Notificacao -> Parecer -> Solicitacao -> Usuario
+    // Navegamos da Notificacao -> Parecer -> Solicitacao -> Usuario
     @Query("SELECT n FROM Notificacao n WHERE n.parecer.solicitacao.usuario.id = :usuarioId ORDER BY n.dataEnvio DESC") 
-    // ORDER BY n.dataEnvio DESC garante que as notificações mais recentes apareçam primeiro
    List<Notificacao> findByUsuarioId(@Param("usuarioId") Integer usuarioId);
     
 }

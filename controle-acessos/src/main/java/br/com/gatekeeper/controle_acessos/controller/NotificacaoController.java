@@ -1,7 +1,6 @@
 package br.com.gatekeeper.controle_acessos.controller;
 
 import br.com.gatekeeper.controle_acessos.dto.response.NotificacaoResponseDTO;
-import br.com.gatekeeper.controle_acessos.model.Notificacao;
 import br.com.gatekeeper.controle_acessos.service.NotificacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

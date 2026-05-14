@@ -2,7 +2,7 @@ package br.com.gatekeeper.controle_acessos.exception;
 import java.time.LocalDateTime;
 import lombok.Data;
 
-@Data // O Lombok já cria os getters e setters para nós
+@Data 
 public class ErroRespostaDTO {
     private LocalDateTime timestamp;
     private Integer status;

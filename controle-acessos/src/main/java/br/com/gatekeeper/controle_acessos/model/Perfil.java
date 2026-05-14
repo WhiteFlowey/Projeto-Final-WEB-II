@@ -19,7 +19,7 @@ public class Perfil implements GrantedAuthority {
     @Column(length = 255)
     private String descricao;
 
-    // --- MÉTODOS DO GRANTEDAUTHORITY ---
+    // --- MÉTODOS DO GrantedAuthority ---
     
     @Override
     public String getAuthority() {

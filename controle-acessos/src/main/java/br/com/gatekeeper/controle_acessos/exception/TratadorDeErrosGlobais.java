@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class TratadorDeErrosGlobais {
 
-    // 1. Tratando o famoso 403 Forbidden (Sem permissão)
+    // Tratamento do 403 Forbidden (Sem permissão)
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErroRespostaDTO> tratarAcessoNegado(AccessDeniedException ex, HttpServletRequest request) {
         ErroRespostaDTO erro = new ErroRespostaDTO(
@@ -23,7 +23,7 @@ public class TratadorDeErrosGlobais {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(erro);
     }
 
-    // 2. Tratando o erro 400 do @Valid (Quando esquecem de mandar um campo)
+    // Tratando o erro 400 do @Valid (Quando esquecem de mandar um campo)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErroRespostaDTO> tratarErrosDeValidacao(MethodArgumentNotValidException ex, HttpServletRequest request) {
         // Pega a mensagem específica que falhou (ex: "O email não pode ser vazio")
@@ -38,13 +38,13 @@ public class TratadorDeErrosGlobais {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
     }
 
-    // 3. Tratando aquele erro de quando busca um ID e não acha (404 Not Found)
-    @ExceptionHandler(RuntimeException.class) // Você pode criar uma excecao especifica como EntidadeNaoEncontradaException
+    // Tratando aquele erro de quando busca um ID e não acha (404 Not Found)
+    @ExceptionHandler(RuntimeException.class) 
     public ResponseEntity<ErroRespostaDTO> tratarErroGenerico(RuntimeException ex, HttpServletRequest request) {
         ErroRespostaDTO erro = new ErroRespostaDTO(
                 HttpStatus.NOT_FOUND.value(),
                 "Não Encontrado",
-                ex.getMessage(), // Aqui entra o seu "Histórico não encontrado"
+                ex.getMessage(),
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);

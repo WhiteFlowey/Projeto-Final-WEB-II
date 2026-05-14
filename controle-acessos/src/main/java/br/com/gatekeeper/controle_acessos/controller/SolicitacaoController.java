@@ -34,7 +34,7 @@ public class SolicitacaoController {
         return ResponseEntity.ok(solicitacaoService.listarTodas());
     }
 
-    // 2. Rota para listar solicitações de UM usuário específico (GET /api/solicitacoes/usuario/5)
+    // Rota para listar solicitações de UM usuário específico (GET /api/solicitacoes/usuario/5)
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<SolicitacaoResponseDTO>> listarPorUsuario(@PathVariable Integer usuarioId) {
         return ResponseEntity.ok(solicitacaoService.listarPorUsuario(usuarioId));

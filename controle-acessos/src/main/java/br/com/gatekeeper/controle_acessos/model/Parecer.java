@@ -34,5 +34,5 @@ public class Parecer {
     private Usuario usuarioResponsavel;
 
     @OneToMany(mappedBy = "parecer")
-    private List<Notificacao> notificacoes; // Agora o Java sabe o que é isso!
+    private List<Notificacao> notificacoes; 
 }
