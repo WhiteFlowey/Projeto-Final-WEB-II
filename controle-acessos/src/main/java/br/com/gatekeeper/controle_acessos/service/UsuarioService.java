@@ -7,6 +7,7 @@ import br.com.gatekeeper.controle_acessos.model.*;
 import br.com.gatekeeper.controle_acessos.model.enums.UsuarioStatus;
 import br.com.gatekeeper.controle_acessos.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +41,7 @@ public class UsuarioService {
         return usuarioMapper.toDTO(usuarioRepository.save(usuario));
     }
 
+    @Cacheable("usuarios")
     public List<UsuarioResponseDTO> listarTodos() {
         return usuarioRepository.findAll().stream().map(usuarioMapper::toDTO).toList();
     }

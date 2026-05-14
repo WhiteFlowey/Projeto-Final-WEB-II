@@ -5,6 +5,7 @@ import br.com.gatekeeper.controle_acessos.mapper.PerfilMapper;
 import br.com.gatekeeper.controle_acessos.model.Perfil;
 import br.com.gatekeeper.controle_acessos.repository.PerfilRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class PerfilService {
     private PerfilRepository repository;
 
     @Autowired
-    private PerfilMapper mapper; // Injetamos o mapper
+    private PerfilMapper mapper; 
 
     public PerfilDTO salvar(PerfilDTO dto) {
         // 1. Converte o DTO que veio da tela para Entidade
@@ -29,6 +30,7 @@ public class PerfilService {
         return mapper.toDTO(perfil);
     }
 
+    @Cacheable("perfis")
     public List<PerfilDTO> listarTodos() {
         // Listagem numa única linha usando o mapper!
         return repository.findAll().stream()

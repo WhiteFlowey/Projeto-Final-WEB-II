@@ -5,6 +5,7 @@ import br.com.gatekeeper.controle_acessos.mapper.DepartamentoMapper;
 import br.com.gatekeeper.controle_acessos.model.Departamento;
 import br.com.gatekeeper.controle_acessos.repository.DepartamentoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class DepartamentoService {
         return mapper.toDTO(departamento);
     }
 
+    @Cacheable("departamentos")
     public List<DepartamentoDTO> listarTodos() {
         // Busca todos e converte cada um para DTO
         return repository.findAll().stream()
