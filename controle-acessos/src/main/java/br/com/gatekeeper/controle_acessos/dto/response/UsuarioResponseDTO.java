@@ -1,9 +1,11 @@
 package br.com.gatekeeper.controle_acessos.dto.response;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import lombok.Data;
 
 @Data
-public class UsuarioResponseDTO {
+public class UsuarioResponseDTO extends RepresentationModel<UsuarioResponseDTO> {
     
     private Integer id;
     private String nome;

@@ -3,6 +3,7 @@ package br.com.gatekeeper.controle_acessos.model;
 import br.com.gatekeeper.controle_acessos.model.enums.UsuarioStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import br.com.gatekeeper.controle_acessos.model.vo.Email; 
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -21,8 +22,8 @@ public class Usuario implements UserDetails {
     @Column(nullable = false, length = 255)
     private String nome;
 
-    @Column(nullable = false, unique = true, length = 255)
-    private String email;
+    @Embedded
+    private Email email;
 
     @Column(nullable = false, length = 255)
     private String senha;
@@ -46,7 +47,6 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Devolve uma lista contendo o perfil do usuário
         return List.of(this.perfil);
     }
 
@@ -57,27 +57,26 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.email;
+        return this.email.getEndereco(); // Pega a String de dentro do VO
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // Conta não expira
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // Conta não bloqueada
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // Credenciais não expiram
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        // O usuário só consegue logar se o status dele for ATIVO
         return this.status == UsuarioStatus.ATIVO;
     }
 }
