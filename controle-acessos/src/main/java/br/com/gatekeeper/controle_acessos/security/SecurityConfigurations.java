@@ -27,7 +27,10 @@ public class SecurityConfigurations {
         return http.csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
-                    req.requestMatchers(HttpMethod.POST, "/login").permitAll(); // Libera o login, lembrar de tirar depois do desenvolvimento dos perfis
+                    req.requestMatchers(HttpMethod.POST, "/login").permitAll(); // Libera o login
+                    
+                    req.requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll();
+                    
                     req.anyRequest().authenticated(); // Bloqueia todo o resto
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class) 
