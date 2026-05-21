@@ -5,15 +5,16 @@ import br.com.gatekeeper.controle_acessos.dto.response.HistoricoAcessoResponseDT
 import br.com.gatekeeper.controle_acessos.mapper.HistoricoAcessoMapper;
 import br.com.gatekeeper.controle_acessos.model.HistoricoAcesso;
 import br.com.gatekeeper.controle_acessos.model.Modulo;
-import br.com.gatekeeper.controle_acessos.model.Usuario; // Importe o Usuario
+import br.com.gatekeeper.controle_acessos.model.Usuario;
 import br.com.gatekeeper.controle_acessos.repository.HistoricoAcessoRepository;
-import br.com.gatekeeper.controle_acessos.repository.ModuloRepository; // Importe
-import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository; // Importe
+import br.com.gatekeeper.controle_acessos.repository.ModuloRepository;
+import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page; 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class HistoricoAcessoService {
@@ -21,35 +22,34 @@ public class HistoricoAcessoService {
     @Autowired private HistoricoAcessoRepository repository;
     @Autowired private HistoricoAcessoMapper mapper;
     
-    // Adicionando os repositórios que faltavam para buscar o Pai e a Mãe
     @Autowired private UsuarioRepository usuarioRepository; 
     @Autowired private ModuloRepository moduloRepository;
 
     public HistoricoAcessoResponseDTO registrarAcesso(HistoricoAcessoRequestDTO dto) {
         
-        // 1. Busca quem está acessando e onde está acessando
         Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
                 
         Modulo modulo = moduloRepository.findById(dto.getModuloId())
                 .orElseThrow(() -> new RuntimeException("Módulo não encontrado!"));
 
-        // 2. Converte o DTO e amarra todo mundo
         HistoricoAcesso historico = mapper.toEntity(dto);
-        historico.setUsuario(usuario); // Amarra o usuário do banco
-        historico.setModulo(modulo);   // Amarra o módulo do banco
+        historico.setUsuario(usuario); 
+        historico.setModulo(modulo);   
         
-        // 3. O servidor carimba a hora de entrada
         historico.setDataInicio(LocalDateTime.now());
 
-        // 4. Salva e devolve
         historico = repository.save(historico);
         return mapper.toDTO(historico);
     }
 
-    public List<HistoricoAcessoResponseDTO> buscarHistoricoDoUsuario(Integer usuarioId) {
-        return repository.findByUsuarioId(usuarioId).stream()
-                .map(mapper::toDTO)
-                .toList();
+    // ➕ NOVO: Método que lista absolutamente tudo no sistema (com paginação)
+    public Page<HistoricoAcessoResponseDTO> listarHistoricoPaginado(Pageable paginacao) {
+        return repository.findAll(paginacao).map(mapper::toDTO);
+    }
+
+    // 🔄 ATUALIZADO: Método que busca o histórico de um usuário específico agora fatiado por páginas
+    public Page<HistoricoAcessoResponseDTO> buscarHistoricoDoUsuario(Integer usuarioId, Pageable paginacao) {
+        return repository.findByUsuarioId(usuarioId, paginacao).map(mapper::toDTO);
     }
 }
