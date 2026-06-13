@@ -7,7 +7,6 @@ import br.com.gatekeeper.controle_acessos.model.FAQ;
 import br.com.gatekeeper.controle_acessos.model.Modulo;
 import br.com.gatekeeper.controle_acessos.repository.FaqRepository;
 import br.com.gatekeeper.controle_acessos.repository.ModuloRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,9 +15,15 @@ import java.util.List;
 @Service
 public class FaqService {
 
-    @Autowired private FaqRepository faqRepository;
-    @Autowired private ModuloRepository moduloRepository;
-    @Autowired private FaqMapper mapper; // Injetando o mapper que criamos
+    private final FaqRepository faqRepository;
+    private final ModuloRepository moduloRepository;
+    private final FaqMapper mapper;
+
+    FaqService(FaqRepository faqRepository, FaqMapper mapper, ModuloRepository moduloRepository) {
+        this.faqRepository = faqRepository;
+        this.mapper = mapper;
+        this.moduloRepository = moduloRepository;
+    } // Injetando o mapper que criamos
 
     @Transactional
     public FaqResponseDTO criarFaq(FaqRequestDTO dto, Integer moduloId) {

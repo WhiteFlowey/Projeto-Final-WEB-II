@@ -7,21 +7,31 @@ import br.com.gatekeeper.controle_acessos.model.*;
 import br.com.gatekeeper.controle_acessos.model.enums.UsuarioStatus;
 import br.com.gatekeeper.controle_acessos.model.vo.Email; 
 import br.com.gatekeeper.controle_acessos.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.AccessDeniedException;
+
 @Service
 public class UsuarioService {
 
-    @Autowired private UsuarioRepository usuarioRepository;
-    @Autowired private DepartamentoRepository departamentoRepository;
-    @Autowired private PerfilRepository perfilRepository;
-    @Autowired private UsuarioMapper usuarioMapper;
-    @Autowired private PasswordEncoder passwordEncoder;
+    private final UsuarioRepository usuarioRepository;
+    private final DepartamentoRepository departamentoRepository;
+    private final PerfilRepository perfilRepository;
+    private final UsuarioMapper usuarioMapper;
+    private final PasswordEncoder passwordEncoder;
+
+    UsuarioService(UsuarioRepository usuarioRepository, DepartamentoRepository departamentoRepository, PerfilRepository perfilRepository, UsuarioMapper usuarioMapper, PasswordEncoder passwordEncoder) {
+        this.usuarioRepository = usuarioRepository;
+        this.departamentoRepository = departamentoRepository;
+        this.perfilRepository = perfilRepository;
+        this.usuarioMapper = usuarioMapper;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Transactional
     public UsuarioResponseDTO criarUsuario(UsuarioRequestDTO request) {
@@ -47,9 +57,28 @@ public class UsuarioService {
     }
 
     public UsuarioResponseDTO buscarPorId(Integer id) {
-        Usuario usuario = usuarioRepository.findById(id)
+        // 1. Busca o usuário solicitado no banco de dados
+        Usuario usuarioBuscado = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        return usuarioMapper.toDTO(usuario);
+
+        // 2. Pega as informações de quem fez a requisição (quem está logado no Token)
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String emailUsuarioLogado = authentication.getName(); 
+        
+        // 3. Verifica se a pessoa logada tem o poder de ADMIN
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        // 4. A REGRA DE BLINDAGEM
+        // Como usamos VO (Value Object) para o Email, precisamos extrair a String dele.
+        String emailDoUsuarioBuscado = usuarioBuscado.getEmail().getEndereco(); 
+
+        if (!isAdmin && !emailDoUsuarioBuscado.equals(emailUsuarioLogado)) {
+            throw new AccessDeniedException("Acesso negado: Você só pode visualizar o seu próprio perfil.");
+        }
+
+        // 5. Se passou pela barreira, devolve o DTO
+        return usuarioMapper.toDTO(usuarioBuscado);
     }
 
     @Transactional

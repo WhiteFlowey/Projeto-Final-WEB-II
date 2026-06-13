@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort; 
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,12 +21,14 @@ public class HistoricoAcessoController {
         this.service = service;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Page<HistoricoAcessoResponseDTO>> listarTodoHistorico(
             @PageableDefault(page = 0, size = 10, sort = "dataInicio", direction = Sort.Direction.DESC) Pageable paginacao) {
         return ResponseEntity.ok(service.listarHistoricoPaginado(paginacao));
     }
 
+    @PreAuthorize("hasRole('COMUM')")
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<Page<HistoricoAcessoResponseDTO>> buscarHistoricoDoUsuario(
             @PathVariable Integer usuarioId, 
@@ -34,6 +37,7 @@ public class HistoricoAcessoController {
     }
 
     // POST /api/historicos
+    @PreAuthorize("hasRole('COMUM')")
     @PostMapping
     public ResponseEntity<HistoricoAcessoResponseDTO> registrarAcesso(@RequestBody HistoricoAcessoRequestDTO dto) {
         HistoricoAcessoResponseDTO registrado = service.registrarAcesso(dto);

@@ -4,7 +4,6 @@ import br.com.gatekeeper.controle_acessos.dto.PerfilDTO;
 import br.com.gatekeeper.controle_acessos.mapper.PerfilMapper;
 import br.com.gatekeeper.controle_acessos.model.Perfil;
 import br.com.gatekeeper.controle_acessos.repository.PerfilRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -13,39 +12,40 @@ import java.util.List;
 @Service
 public class PerfilService {
 
-    @Autowired
-    private PerfilRepository repository;
+    private final PerfilRepository repository;
+    private final PerfilMapper mapper;
 
-    @Autowired
-    private PerfilMapper mapper; 
+    PerfilService(PerfilRepository repository, PerfilMapper mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
+    } 
 
     public PerfilDTO salvar(PerfilDTO dto) {
-        // 1. Converte o DTO que veio da tela para Entidade
         Perfil perfil = mapper.toEntity(dto);
-        
-        // 2. Salva no banco
         perfil = repository.save(perfil);
-        
-        // 3. Devolve como DTO novamente
         return mapper.toDTO(perfil);
     }
 
     @Cacheable("perfis")
     public List<PerfilDTO> listarTodos() {
-        // Listagem numa única linha usando o mapper!
         return repository.findAll().stream()
                 .map(mapper::toDTO)
                 .toList();
     }
 
-    public Perfil atualizar(Integer id, Perfil dados) {
+    public PerfilDTO atualizar(Integer id, PerfilDTO dto) {
+        // 1. Busca a entidade existente no banco pelo ID
         Perfil perfil = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
 
-        perfil.setNome(dados.getNome());
-        perfil.setDescricao(dados.getDescricao());
+        // 2. Atualiza os dados da entidade usando as informações que vieram do DTO
+        perfil.setNome(dto.getNome());
+        perfil.setDescricao(dto.getDescricao());
 
-        return repository.save(perfil);
+        // 3. Salva a entidade atualizada de volta no banco
+        Perfil perfilAtualizado = repository.save(perfil);
+
+        // 4. Converte a entidade salva para DTO antes de retornar para o Controller
+        return mapper.toDTO(perfilAtualizado);
     }
-
 }

@@ -7,7 +7,6 @@ import br.com.gatekeeper.controle_acessos.model.*;
 import br.com.gatekeeper.controle_acessos.model.enums.HistoricoAcessoStatus;
 import br.com.gatekeeper.controle_acessos.model.enums.SolicitacaoStatus;
 import br.com.gatekeeper.controle_acessos.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,13 +16,22 @@ import java.util.List;
 @Service
 public class ParecerService {
 
-    @Autowired private ParecerRepository parecerRepository;
-    @Autowired private SolicitacaoRepository solicitacaoRepository;
-    @Autowired private UsuarioRepository usuarioRepository;
-    @Autowired private HistoricoAcessoRepository historicoRepository;
-    @Autowired private NotificacaoRepository notificacaoRepository;
+    private final ParecerRepository parecerRepository;
+    private final SolicitacaoRepository solicitacaoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final HistoricoAcessoRepository historicoRepository;
+    private final NotificacaoRepository notificacaoRepository;
     
-    @Autowired private ParecerMapper parecerMapper;
+    private final ParecerMapper parecerMapper;
+
+    ParecerService(ParecerRepository parecerRepository, SolicitacaoRepository solicitacaoRepository, UsuarioRepository usuarioRepository, HistoricoAcessoRepository historicoRepository, NotificacaoRepository notificacaoRepository, ParecerMapper parecerMapper) {
+        this.parecerRepository = parecerRepository;
+        this.solicitacaoRepository = solicitacaoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.historicoRepository = historicoRepository;
+        this.notificacaoRepository = notificacaoRepository;
+        this.parecerMapper = parecerMapper;
+    }
 
     @Transactional 
     public ParecerResponseDTO avaliarSolicitacao(ParecerRequestDTO request) {

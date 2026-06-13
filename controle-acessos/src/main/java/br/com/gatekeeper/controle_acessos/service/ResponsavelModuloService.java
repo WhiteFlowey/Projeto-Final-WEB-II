@@ -5,7 +5,6 @@ import br.com.gatekeeper.controle_acessos.dto.request.ResponsavelModuloRequestDT
 import br.com.gatekeeper.controle_acessos.mapper.ResponsavelModuloMapper;
 import br.com.gatekeeper.controle_acessos.model.*;
 import br.com.gatekeeper.controle_acessos.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,10 +13,17 @@ import java.util.List;
 @Service
 public class ResponsavelModuloService {
 
-    @Autowired private ResponsavelModuloRepository repository;
-    @Autowired private UsuarioRepository usuarioRepository;
-    @Autowired private ModuloRepository moduloRepository;
-    @Autowired private ResponsavelModuloMapper mapper;
+    private final ResponsavelModuloRepository repository;
+    private final UsuarioRepository usuarioRepository;
+    private final ModuloRepository moduloRepository;
+    private final ResponsavelModuloMapper mapper;
+
+    ResponsavelModuloService(ResponsavelModuloRepository repository, UsuarioRepository usuarioRepository, ModuloRepository moduloRepository, ResponsavelModuloMapper mapper) {
+        this.repository = repository;
+        this.usuarioRepository = usuarioRepository;
+        this.moduloRepository = moduloRepository;
+        this.mapper = mapper;
+    }
 
     //
     public ResponsavelModuloDTO atribuirNovoDiretor(ResponsavelModuloRequestDTO dto) {

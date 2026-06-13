@@ -9,7 +9,6 @@ import br.com.gatekeeper.controle_acessos.model.Usuario;
 import br.com.gatekeeper.controle_acessos.repository.HistoricoAcessoRepository;
 import br.com.gatekeeper.controle_acessos.repository.ModuloRepository;
 import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page; 
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,11 +18,18 @@ import java.time.LocalDateTime;
 @Service
 public class HistoricoAcessoService {
 
-    @Autowired private HistoricoAcessoRepository repository;
-    @Autowired private HistoricoAcessoMapper mapper;
+    private final HistoricoAcessoRepository repository;
+    private final HistoricoAcessoMapper mapper;
     
-    @Autowired private UsuarioRepository usuarioRepository; 
-    @Autowired private ModuloRepository moduloRepository;
+    private final UsuarioRepository usuarioRepository; 
+    private final ModuloRepository moduloRepository;
+
+    HistoricoAcessoService(HistoricoAcessoMapper mapper, UsuarioRepository usuarioRepository, ModuloRepository moduloRepository, HistoricoAcessoRepository repository) {
+        this.mapper = mapper;
+        this.usuarioRepository = usuarioRepository;
+        this.moduloRepository = moduloRepository;
+        this.repository = repository;
+    }
 
     public HistoricoAcessoResponseDTO registrarAcesso(HistoricoAcessoRequestDTO dto) {
         

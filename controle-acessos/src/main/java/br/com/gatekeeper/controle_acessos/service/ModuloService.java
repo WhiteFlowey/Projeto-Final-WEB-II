@@ -4,7 +4,6 @@ import br.com.gatekeeper.controle_acessos.dto.ModuloDTO;
 import br.com.gatekeeper.controle_acessos.mapper.ModuloMapper;
 import br.com.gatekeeper.controle_acessos.model.Modulo;
 import br.com.gatekeeper.controle_acessos.repository.ModuloRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,11 +11,14 @@ import java.util.List;
 @Service
 public class ModuloService {
 
-    @Autowired
-    private ModuloRepository repository;
+    private final ModuloRepository repository;
 
-    @Autowired
-    private ModuloMapper mapper; // 1. Injetando o nosso Mapper
+    private final ModuloMapper mapper;
+
+    ModuloService(ModuloRepository repository, ModuloMapper mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
+    } // 1. Injetando o nosso Mapper
 
     public ModuloDTO criarModulo(ModuloDTO dto) {
         // Converte o DTO para Entidade, salva e devolve como DTO

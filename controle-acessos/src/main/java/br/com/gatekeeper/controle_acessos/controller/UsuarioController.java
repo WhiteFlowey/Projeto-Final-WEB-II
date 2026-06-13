@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -22,13 +23,15 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<UsuarioResponseDTO> criarUsuario(@Valid @RequestBody UsuarioRequestDTO request) {
         UsuarioResponseDTO response = usuarioService.criarUsuario(request);
         adicionarLinks(response); // Injeta os links antes de devolver
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
+    
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
         List<UsuarioResponseDTO> lista = usuarioService.listarTodos();
@@ -46,6 +49,7 @@ public class UsuarioController {
     }
 
     // Atualizar
+    @PreAuthorize("hasRole('COMUM')")
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Integer id, @Valid @RequestBody UsuarioRequestDTO request) {
         UsuarioResponseDTO response = usuarioService.atualizarUsuario(id, request);
@@ -54,6 +58,7 @@ public class UsuarioController {
     }
 
     // Remover
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Integer id) {
         usuarioService.removerUsuario(id);

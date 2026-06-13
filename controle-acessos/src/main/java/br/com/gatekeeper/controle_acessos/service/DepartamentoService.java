@@ -4,7 +4,6 @@ import br.com.gatekeeper.controle_acessos.dto.DepartamentoDTO;
 import br.com.gatekeeper.controle_acessos.mapper.DepartamentoMapper;
 import br.com.gatekeeper.controle_acessos.model.Departamento;
 import br.com.gatekeeper.controle_acessos.repository.DepartamentoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -13,11 +12,14 @@ import java.util.List;
 @Service
 public class DepartamentoService {
 
-    @Autowired
-    private DepartamentoRepository repository;
+    private final DepartamentoRepository repository;
 
-    @Autowired
-    private DepartamentoMapper mapper; // Injetando o mapper
+    private final DepartamentoMapper mapper;
+
+    DepartamentoService(DepartamentoRepository repository, DepartamentoMapper mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
+    } // Injetando o mapper
 
     public DepartamentoDTO salvar(DepartamentoDTO dto) {
         // Converte o DTO para Entidade, salva no banco e devolve como DTO

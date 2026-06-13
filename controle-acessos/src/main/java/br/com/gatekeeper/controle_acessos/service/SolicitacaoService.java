@@ -10,7 +10,6 @@ import br.com.gatekeeper.controle_acessos.model.enums.SolicitacaoStatus;
 import br.com.gatekeeper.controle_acessos.repository.ModuloRepository;
 import br.com.gatekeeper.controle_acessos.repository.SolicitacaoRepository;
 import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,12 +20,19 @@ import java.util.UUID;
 @Service
 public class SolicitacaoService {
 
-    @Autowired private SolicitacaoRepository solicitacaoRepository;
-    @Autowired private UsuarioRepository usuarioRepository;
-    @Autowired private ModuloRepository moduloRepository;
+    private final SolicitacaoRepository solicitacaoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final ModuloRepository moduloRepository;
     
     // 2. Injetar o Mapper
-    @Autowired private SolicitacaoMapper solicitacaoMapper;
+    private final SolicitacaoMapper solicitacaoMapper;
+
+    SolicitacaoService(SolicitacaoRepository solicitacaoRepository, UsuarioRepository usuarioRepository, ModuloRepository moduloRepository, SolicitacaoMapper solicitacaoMapper) {
+        this.solicitacaoRepository = solicitacaoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.moduloRepository = moduloRepository;
+        this.solicitacaoMapper = solicitacaoMapper;
+    }
 
     @Transactional
     public SolicitacaoResponseDTO criarSolicitacao(SolicitacaoRequestDTO request) {

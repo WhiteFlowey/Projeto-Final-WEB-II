@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class FaqController {
     }
 
     // Recebe FaqRequestDTO e devolver FaqResponseDTO
+    @PreAuthorize("hasRole('GESTOR')")
     @PostMapping("/modulo/{moduloId}")
     public ResponseEntity<FaqResponseDTO> criarFaq(@Valid @RequestBody FaqRequestDTO dto, @PathVariable Integer moduloId) {
         FaqResponseDTO novoFaq = service.criarFaq(dto, moduloId);
@@ -29,12 +31,14 @@ public class FaqController {
     }
 
     // Devolve uma lista de FaqResponseDTO
+    @PreAuthorize("hasRole('COMUM')")
     @GetMapping("/modulo/{moduloId}")
     public ResponseEntity<List<FaqResponseDTO>> listarPorModulo(@PathVariable Integer moduloId) {
         return ResponseEntity.ok(service.listarPorModulo(moduloId));
     }
 
     // Atualiza um FAQ existente (PUT /api/faqs/{id})
+    @PreAuthorize("hasRole('GESTOR')")
     @PutMapping("/{id}")
     public ResponseEntity<FaqResponseDTO> atualizarFaq(@PathVariable Integer id, @Valid @RequestBody FaqRequestDTO dto) {
         FaqResponseDTO atualizado = service.atualizarFaq(id, dto);
@@ -42,6 +46,7 @@ public class FaqController {
     }
 
     // Deletar um FAQ (DELETE /api/faqs/{id})
+    @PreAuthorize("hasRole('GESTOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarFaq(@PathVariable Integer id) {
         service.deletarFaq(id);

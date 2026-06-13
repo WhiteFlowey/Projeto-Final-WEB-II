@@ -3,7 +3,6 @@ package br.com.gatekeeper.controle_acessos.service;
 import br.com.gatekeeper.controle_acessos.dto.response.NotificacaoResponseDTO;
 import br.com.gatekeeper.controle_acessos.mapper.NotificacaoMapper;
 import br.com.gatekeeper.controle_acessos.repository.NotificacaoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
