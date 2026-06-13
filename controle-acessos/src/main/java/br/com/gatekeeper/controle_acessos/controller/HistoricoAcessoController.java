@@ -3,7 +3,6 @@ package br.com.gatekeeper.controle_acessos.controller;
 import br.com.gatekeeper.controle_acessos.dto.request.HistoricoAcessoRequestDTO;
 import br.com.gatekeeper.controle_acessos.dto.response.HistoricoAcessoResponseDTO;
 import br.com.gatekeeper.controle_acessos.service.HistoricoAcessoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort; 
@@ -15,7 +14,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/historicos")
 public class HistoricoAcessoController {
 
-    @Autowired private HistoricoAcessoService service;
+    private final HistoricoAcessoService service;
+
+    HistoricoAcessoController(HistoricoAcessoService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public ResponseEntity<Page<HistoricoAcessoResponseDTO>> listarTodoHistorico(

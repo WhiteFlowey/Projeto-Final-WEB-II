@@ -5,7 +5,6 @@ import br.com.gatekeeper.controle_acessos.model.Perfil;
 import br.com.gatekeeper.controle_acessos.service.PerfilService;
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +15,11 @@ import java.util.List;
 @RequestMapping("/api/perfis")
 public class PerfilController {
 
-    @Autowired 
-    private PerfilService service;
+    private final PerfilService service;
+
+    PerfilController(PerfilService service) {
+        this.service = service;
+    }
 
     @PostMapping
     public ResponseEntity<PerfilDTO> criar(@Valid @RequestBody PerfilDTO dto) {

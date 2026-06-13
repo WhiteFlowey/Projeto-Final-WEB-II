@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +15,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/pareceres")
 public class ParecerController {
 
-    @Autowired
-    private ParecerService parecerService;
+    private final ParecerService parecerService;
+
+    ParecerController(ParecerService parecerService) {
+        this.parecerService = parecerService;
+    }
 
     // Recebe a decisão do Gestor (APROVADA/REJEITADA) e processa tudo
     @PostMapping

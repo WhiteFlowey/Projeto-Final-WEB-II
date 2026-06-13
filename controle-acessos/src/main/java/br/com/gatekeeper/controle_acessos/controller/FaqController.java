@@ -5,7 +5,6 @@ import br.com.gatekeeper.controle_acessos.dto.response.FaqResponseDTO;
 import br.com.gatekeeper.controle_acessos.service.FaqService;
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +15,11 @@ import java.util.List;
 @RequestMapping("/api/faqs")
 public class FaqController {
 
-    @Autowired
-    private FaqService service;
+    private final FaqService service;
+
+    FaqController(FaqService service) {
+        this.service = service;
+    }
 
     // Recebe FaqRequestDTO e devolver FaqResponseDTO
     @PostMapping("/modulo/{moduloId}")

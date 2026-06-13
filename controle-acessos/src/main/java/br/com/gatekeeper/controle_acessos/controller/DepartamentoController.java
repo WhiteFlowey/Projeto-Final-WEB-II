@@ -4,7 +4,6 @@ import br.com.gatekeeper.controle_acessos.dto.DepartamentoDTO; // Importar o DTO
 import br.com.gatekeeper.controle_acessos.service.DepartamentoService;
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +14,11 @@ import java.util.List;
 @RequestMapping("/api/departamentos")
 public class DepartamentoController {
 
-    @Autowired 
-    private DepartamentoService service;
+    private final DepartamentoService service;
+
+    DepartamentoController(DepartamentoService service) {
+        this.service = service;
+    }
 
     // Recebe DepartamentoDTO e retorna DepartamentoDTO
     @PostMapping
