@@ -1,5 +1,7 @@
 package br.com.gatekeeper.controle_acessos.controller;
 
+import java.util.List;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import br.com.gatekeeper.controle_acessos.dto.request.SolicitacaoRequestDTO;
 import br.com.gatekeeper.controle_acessos.dto.response.SolicitacaoResponseDTO;
 import br.com.gatekeeper.controle_acessos.security.TokenService;
@@ -70,6 +72,36 @@ class SolicitacaoControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(100));
+    }
+
+    @Test
+    @WithMockUser(roles = "GESTOR") // A role exigida no seu Controller para listar todas
+    void deveListarTodasAsSolicitacoes() throws Exception {
+        // ARRANGE
+        SolicitacaoResponseDTO response = new SolicitacaoResponseDTO();
+        response.setId(10);
+        
+        when(solicitacaoService.listarTodas()).thenReturn(List.of(response));
+
+        // ACT & ASSERT
+        mockMvc.perform(get("/api/solicitacoes"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(10)); // O [0] pega o primeiro item da lista
+    }
+
+    @Test
+    @WithMockUser(roles = "COMUM") // A role exigida para listar por usuário
+    void deveListarSolicitacoesPorUsuario() throws Exception {
+        // ARRANGE
+        SolicitacaoResponseDTO response = new SolicitacaoResponseDTO();
+        response.setId(20);
+        
+        when(solicitacaoService.listarPorUsuario(1)).thenReturn(List.of(response));
+
+        // ACT & ASSERT
+        mockMvc.perform(get("/api/solicitacoes/usuario/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(20));
     }
 
     @Test

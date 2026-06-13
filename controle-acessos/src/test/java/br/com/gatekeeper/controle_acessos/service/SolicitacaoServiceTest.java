@@ -1,5 +1,6 @@
 package br.com.gatekeeper.controle_acessos.service;
 
+import java.util.List;
 import br.com.gatekeeper.controle_acessos.dto.request.SolicitacaoRequestDTO;
 import br.com.gatekeeper.controle_acessos.dto.response.SolicitacaoResponseDTO;
 import br.com.gatekeeper.controle_acessos.mapper.SolicitacaoMapper;
@@ -99,5 +100,66 @@ class SolicitacaoServiceTest {
 
         // Verifica que o sistema abortou e NUNCA tentou salvar no banco
         verify(solicitacaoRepository, never()).save(any());
+
+        
     }
+@Test
+    void deveLancarExcecaoQuandoModuloNaoExistir() {
+        // ARRANGE
+        SolicitacaoRequestDTO request = new SolicitacaoRequestDTO();
+        request.setUsuarioId(1);
+        request.setModuloId(999); // ID de módulo falso
+
+        // O usuário existe, mas o módulo não
+        when(usuarioRepository.findById(1)).thenReturn(Optional.of(new Usuario()));
+        when(moduloRepository.findById(999)).thenReturn(Optional.empty());
+
+        // ACT & ASSERT
+        assertThatThrownBy(() -> solicitacaoService.criarSolicitacao(request))
+                .isInstanceOf(EntityNotFoundException.class); // Isso cobre a sua "lambda$1" do JaCoCo!
+
+        // Garante que a solicitação não foi salva
+        verify(solicitacaoRepository, never()).save(any());
+    }
+
+    @Test
+    void deveListarTodasAsSolicitacoes() {
+        // ARRANGE
+        Solicitacao solicitacao = new Solicitacao();
+        solicitacao.setId(1);
+        when(solicitacaoRepository.findAll()).thenReturn(List.of(solicitacao));
+        
+        SolicitacaoResponseDTO dto = new SolicitacaoResponseDTO();
+        dto.setId(1);
+        when(solicitacaoMapper.toDTO(solicitacao)).thenReturn(dto);
+
+        // ACT
+        List<SolicitacaoResponseDTO> resultado = solicitacaoService.listarTodas();
+
+        // ASSERT
+        assertThat(resultado).isNotEmpty();
+        assertThat(resultado.get(0).getId()).isEqualTo(1);
+        verify(solicitacaoRepository, times(1)).findAll();
+    }
+
+    @Test
+    void deveListarSolicitacoesPorUsuario() {
+        // ARRANGE
+        Solicitacao solicitacao = new Solicitacao();
+        solicitacao.setId(2);
+        when(solicitacaoRepository.findByUsuarioId(1)).thenReturn(List.of(solicitacao));
+        
+        SolicitacaoResponseDTO dto = new SolicitacaoResponseDTO();
+        dto.setId(2);
+        when(solicitacaoMapper.toDTO(solicitacao)).thenReturn(dto);
+
+        // ACT
+        List<SolicitacaoResponseDTO> resultado = solicitacaoService.listarPorUsuario(1);
+
+        // ASSERT
+        assertThat(resultado).isNotEmpty();
+        assertThat(resultado.get(0).getId()).isEqualTo(2);
+        verify(solicitacaoRepository, times(1)).findByUsuarioId(1);
+    }
+
 }
