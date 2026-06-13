@@ -1,13 +1,15 @@
 package br.com.gatekeeper.controle_acessos.service;
 
+import java.util.List;
+
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+
 import br.com.gatekeeper.controle_acessos.dto.DepartamentoDTO;
 import br.com.gatekeeper.controle_acessos.mapper.DepartamentoMapper;
 import br.com.gatekeeper.controle_acessos.model.Departamento;
 import br.com.gatekeeper.controle_acessos.repository.DepartamentoRepository;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class DepartamentoService {
@@ -40,7 +42,7 @@ public class DepartamentoService {
     public DepartamentoDTO atualizar(Integer id, DepartamentoDTO dto) {
         // 1. Procura o departamento pelo ID no banco de dados
         Departamento departamento = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Departamento não encontrado com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Departamento não encontrado com o ID: " + id));
 
         // 2. Atualiza os dados antigos com os dados novos que vieram do Postman
         departamento.setNome(dto.getNome());
@@ -55,7 +57,7 @@ public class DepartamentoService {
     public void deletar(Integer id) {
         // 1. Verifica se o departamento realmente existe antes de tentar apagar
         Departamento departamento = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Departamento não encontrado com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Departamento não encontrado com o ID: " + id));
 
         // 2. Apaga do banco de dados
         repository.delete(departamento);

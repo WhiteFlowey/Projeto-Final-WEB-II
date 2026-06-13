@@ -1,7 +1,6 @@
 package br.com.gatekeeper.controle_acessos.security;
 
 import jakarta.servlet.http.HttpServletResponse; 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,8 +23,11 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 @EnableMethodSecurity // Garante que o @PreAuthorize vai funcionar nos Controllers
 public class SecurityConfigurations {
 
-    @Autowired
-    private SecurityFilter securityFilter; 
+    private final SecurityFilter securityFilter;
+
+    SecurityConfigurations(SecurityFilter securityFilter) {
+        this.securityFilter = securityFilter;
+    } 
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

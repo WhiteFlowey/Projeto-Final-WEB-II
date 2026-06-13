@@ -1,20 +1,24 @@
 package br.com.gatekeeper.controle_acessos.service;
 
-import br.com.gatekeeper.controle_acessos.dto.request.UsuarioRequestDTO;
-import br.com.gatekeeper.controle_acessos.dto.response.UsuarioResponseDTO;
-import br.com.gatekeeper.controle_acessos.mapper.UsuarioMapper;
-import br.com.gatekeeper.controle_acessos.model.*;
-import br.com.gatekeeper.controle_acessos.model.enums.UsuarioStatus;
-import br.com.gatekeeper.controle_acessos.model.vo.Email; 
-import br.com.gatekeeper.controle_acessos.repository.*;
+import java.util.List;
+
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.access.AccessDeniedException;
+import br.com.gatekeeper.controle_acessos.dto.request.UsuarioRequestDTO;
+import br.com.gatekeeper.controle_acessos.dto.response.UsuarioResponseDTO;
+import br.com.gatekeeper.controle_acessos.mapper.UsuarioMapper;
+import br.com.gatekeeper.controle_acessos.model.Usuario;
+import br.com.gatekeeper.controle_acessos.model.enums.UsuarioStatus;
+import br.com.gatekeeper.controle_acessos.model.vo.Email;
+import br.com.gatekeeper.controle_acessos.repository.DepartamentoRepository;
+import br.com.gatekeeper.controle_acessos.repository.PerfilRepository;
+import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class UsuarioService {
@@ -39,9 +43,9 @@ public class UsuarioService {
         
         usuario.setSenha(passwordEncoder.encode(request.getSenha()));
         usuario.setDepartamento(departamentoRepository.findById(request.getDepartamentoId())
-                .orElseThrow(() -> new RuntimeException("Departamento não encontrado")));
+                .orElseThrow(() -> new EntityNotFoundException("Departamento não encontrado")));
         usuario.setPerfil(perfilRepository.findById(request.getPerfilId())
-                .orElseThrow(() -> new RuntimeException("Perfil não encontrado")));
+                .orElseThrow(() -> new EntityNotFoundException("Perfil não encontrado")));
         usuario.setStatus(UsuarioStatus.ATIVO);
 
         String anoAtual = String.valueOf(java.time.Year.now().getValue());
@@ -59,7 +63,7 @@ public class UsuarioService {
     public UsuarioResponseDTO buscarPorId(Integer id) {
         // 1. Busca o usuário solicitado no banco de dados
         Usuario usuarioBuscado = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
         // 2. Pega as informações de quem fez a requisição (quem está logado no Token)
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -84,7 +88,7 @@ public class UsuarioService {
     @Transactional
     public UsuarioResponseDTO atualizarUsuario(Integer id, UsuarioRequestDTO request) {
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
         
         usuario.setNome(request.getNome());
         usuario.setEmail(new Email(request.getEmail()));
@@ -99,7 +103,7 @@ public class UsuarioService {
     @Transactional
     public void removerUsuario(Integer id) {
         if (!usuarioRepository.existsById(id)) {
-            throw new RuntimeException("Usuário não encontrado");
+            throw new EntityNotFoundException("Usuário não encontrado");
         }
         usuarioRepository.deleteById(id);
     }

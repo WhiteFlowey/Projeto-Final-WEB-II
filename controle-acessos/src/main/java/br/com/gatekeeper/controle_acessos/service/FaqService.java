@@ -1,5 +1,10 @@
 package br.com.gatekeeper.controle_acessos.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import br.com.gatekeeper.controle_acessos.dto.request.FaqRequestDTO;
 import br.com.gatekeeper.controle_acessos.dto.response.FaqResponseDTO;
 import br.com.gatekeeper.controle_acessos.mapper.FaqMapper;
@@ -7,10 +12,7 @@ import br.com.gatekeeper.controle_acessos.model.FAQ;
 import br.com.gatekeeper.controle_acessos.model.Modulo;
 import br.com.gatekeeper.controle_acessos.repository.FaqRepository;
 import br.com.gatekeeper.controle_acessos.repository.ModuloRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class FaqService {
@@ -29,7 +31,7 @@ public class FaqService {
     public FaqResponseDTO criarFaq(FaqRequestDTO dto, Integer moduloId) {
         // 1. Regra de Negócio: O FAQ precisa de um módulo válido
         Modulo modulo = moduloRepository.findById(moduloId)
-                .orElseThrow(() -> new RuntimeException("Módulo não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Módulo não encontrado"));
         
         // 2. Uso do Mapper para converter o Request em Entidade
         FAQ faq = mapper.toEntity(dto);
@@ -53,7 +55,7 @@ public class FaqService {
     public FaqResponseDTO atualizarFaq(Integer id, FaqRequestDTO dto) {
         // 1. Busca o FAQ pelo ID dele mesmo
         FAQ faq = faqRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("FAQ não encontrado com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("FAQ não encontrado com o ID: " + id));
 
         // 2. Atualiza apenas a pergunta e a resposta (o módulo continua o mesmo)
         faq.setPergunta(dto.getPergunta());
@@ -68,7 +70,7 @@ public class FaqService {
     public void deletarFaq(Integer id) {
         // 1. Verifica se o FAQ existe
         FAQ faq = faqRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("FAQ não encontrado com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("FAQ não encontrado com o ID: " + id));
 
         // 2. Deleta do banco
         faqRepository.delete(faq);

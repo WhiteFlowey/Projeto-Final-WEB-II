@@ -1,17 +1,27 @@
 package br.com.gatekeeper.controle_acessos.service;
 
-import br.com.gatekeeper.controle_acessos.dto.request.ParecerRequestDTO;
-import br.com.gatekeeper.controle_acessos.dto.response.ParecerResponseDTO;
-import br.com.gatekeeper.controle_acessos.mapper.ParecerMapper;
-import br.com.gatekeeper.controle_acessos.model.*;
-import br.com.gatekeeper.controle_acessos.model.enums.HistoricoAcessoStatus;
-import br.com.gatekeeper.controle_acessos.model.enums.SolicitacaoStatus;
-import br.com.gatekeeper.controle_acessos.repository.*;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import br.com.gatekeeper.controle_acessos.dto.request.ParecerRequestDTO;
+import br.com.gatekeeper.controle_acessos.dto.response.ParecerResponseDTO;
+import br.com.gatekeeper.controle_acessos.mapper.ParecerMapper;
+import br.com.gatekeeper.controle_acessos.model.HistoricoAcesso;
+import br.com.gatekeeper.controle_acessos.model.Notificacao;
+import br.com.gatekeeper.controle_acessos.model.Parecer;
+import br.com.gatekeeper.controle_acessos.model.Solicitacao;
+import br.com.gatekeeper.controle_acessos.model.Usuario;
+import br.com.gatekeeper.controle_acessos.model.enums.HistoricoAcessoStatus;
+import br.com.gatekeeper.controle_acessos.model.enums.SolicitacaoStatus;
+import br.com.gatekeeper.controle_acessos.repository.HistoricoAcessoRepository;
+import br.com.gatekeeper.controle_acessos.repository.NotificacaoRepository;
+import br.com.gatekeeper.controle_acessos.repository.ParecerRepository;
+import br.com.gatekeeper.controle_acessos.repository.SolicitacaoRepository;
+import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class ParecerService {
@@ -37,10 +47,10 @@ public class ParecerService {
     public ParecerResponseDTO avaliarSolicitacao(ParecerRequestDTO request) {
         
         Solicitacao solicitacao = solicitacaoRepository.findById(request.getSolicitacaoId())
-                .orElseThrow(() -> new RuntimeException("Solicitação não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Solicitação não encontrada"));
 
         Usuario avaliador = usuarioRepository.findById(request.getUsuarioResponsavelId())
-                .orElseThrow(() -> new RuntimeException("Avaliador não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Avaliador não encontrado"));
 
         Parecer parecer = parecerMapper.toEntity(request);
         

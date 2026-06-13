@@ -1,8 +1,15 @@
 package br.com.gatekeeper.controle_acessos.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import br.com.gatekeeper.controle_acessos.dto.request.SolicitacaoRequestDTO;
 import br.com.gatekeeper.controle_acessos.dto.response.SolicitacaoResponseDTO;
-import br.com.gatekeeper.controle_acessos.mapper.SolicitacaoMapper; 
+import br.com.gatekeeper.controle_acessos.mapper.SolicitacaoMapper;
 import br.com.gatekeeper.controle_acessos.model.Modulo;
 import br.com.gatekeeper.controle_acessos.model.Solicitacao;
 import br.com.gatekeeper.controle_acessos.model.Usuario;
@@ -10,12 +17,7 @@ import br.com.gatekeeper.controle_acessos.model.enums.SolicitacaoStatus;
 import br.com.gatekeeper.controle_acessos.repository.ModuloRepository;
 import br.com.gatekeeper.controle_acessos.repository.SolicitacaoRepository;
 import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class SolicitacaoService {
@@ -39,10 +41,10 @@ public class SolicitacaoService {
         
         // Validações continuam aqui (é regra de negócio!)
         Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado. ID: " + request.getUsuarioId()));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado. ID: " + request.getUsuarioId()));
 
         Modulo modulo = moduloRepository.findById(request.getModuloId())
-                .orElseThrow(() -> new RuntimeException("Módulo não encontrado. ID: " + request.getModuloId()));
+                .orElseThrow(() -> new EntityNotFoundException("Módulo não encontrado. ID: " + request.getModuloId()));
 
         // 3. O Mapper cria a entidade (ele ignora usuario e modulo conforme configuramos)
         Solicitacao solicitacao = solicitacaoMapper.toEntity(request);

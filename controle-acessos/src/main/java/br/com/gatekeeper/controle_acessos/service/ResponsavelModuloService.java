@@ -1,14 +1,20 @@
 package br.com.gatekeeper.controle_acessos.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import br.com.gatekeeper.controle_acessos.dto.ResponsavelModuloDTO;
 import br.com.gatekeeper.controle_acessos.dto.request.ResponsavelModuloRequestDTO;
 import br.com.gatekeeper.controle_acessos.mapper.ResponsavelModuloMapper;
-import br.com.gatekeeper.controle_acessos.model.*;
-import br.com.gatekeeper.controle_acessos.repository.*;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import br.com.gatekeeper.controle_acessos.model.Modulo;
+import br.com.gatekeeper.controle_acessos.model.ResponsavelModulo;
+import br.com.gatekeeper.controle_acessos.model.Usuario;
+import br.com.gatekeeper.controle_acessos.repository.ModuloRepository;
+import br.com.gatekeeper.controle_acessos.repository.ResponsavelModuloRepository;
+import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class ResponsavelModuloService {
@@ -28,9 +34,9 @@ public class ResponsavelModuloService {
     //
     public ResponsavelModuloDTO atribuirNovoDiretor(ResponsavelModuloRequestDTO dto) {
         Usuario usu = usuarioRepository.findById(dto.getUsuarioId())
-                .orElseThrow(() -> new RuntimeException("Usuário não existe!"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não existe!"));
         Modulo mod = moduloRepository.findById(dto.getModuloId())
-                .orElseThrow(() -> new RuntimeException("Módulo não existe!"));
+                .orElseThrow(() -> new EntityNotFoundException("Módulo não existe!"));
 
         ResponsavelModulo novo = new ResponsavelModulo();
         novo.setUsuario(usu);

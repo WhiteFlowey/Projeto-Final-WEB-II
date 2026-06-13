@@ -1,12 +1,14 @@
 package br.com.gatekeeper.controle_acessos.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import br.com.gatekeeper.controle_acessos.dto.ModuloDTO;
 import br.com.gatekeeper.controle_acessos.mapper.ModuloMapper;
 import br.com.gatekeeper.controle_acessos.model.Modulo;
 import br.com.gatekeeper.controle_acessos.repository.ModuloRepository;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class ModuloService {
@@ -37,7 +39,7 @@ public class ModuloService {
     public ModuloDTO atualizar(Integer id, ModuloDTO dto) {
         // Busca o módulo existente no banco de dados
         Modulo moduloExistente = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Módulo não encontrado com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Módulo não encontrado com o ID: " + id));
 
         // Atualiza apenas os campos que vieram preenchidos no DTO
         if (dto.getNome() != null && !dto.getNome().isEmpty()) {
@@ -57,7 +59,7 @@ public class ModuloService {
     public void deletar(Integer id) {
         // Verifica se existe antes de tentar deletar
         if (!repository.existsById(id)) {
-            throw new RuntimeException("Módulo não encontrado com o ID: " + id);
+            throw new EntityNotFoundException("Módulo não encontrado com o ID: " + id);
         }
         repository.deleteById(id);
     }
@@ -65,7 +67,7 @@ public class ModuloService {
     // 5. BUSCAR POR ID (LER UM)
     public ModuloDTO buscarPorId(Integer id) {
         Modulo modulo = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Módulo não encontrado com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Módulo não encontrado com o ID: " + id));
         
         return mapper.toDTO(modulo);
     }

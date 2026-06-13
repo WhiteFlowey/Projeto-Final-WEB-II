@@ -1,13 +1,15 @@
 package br.com.gatekeeper.controle_acessos.service;
 
+import java.util.List;
+
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+
 import br.com.gatekeeper.controle_acessos.dto.PerfilDTO;
 import br.com.gatekeeper.controle_acessos.mapper.PerfilMapper;
 import br.com.gatekeeper.controle_acessos.model.Perfil;
 import br.com.gatekeeper.controle_acessos.repository.PerfilRepository;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class PerfilService {
@@ -36,7 +38,7 @@ public class PerfilService {
     public PerfilDTO atualizar(Integer id, PerfilDTO dto) {
         // 1. Busca a entidade existente no banco pelo ID
         Perfil perfil = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Perfil não encontrado"));
 
         // 2. Atualiza os dados da entidade usando as informações que vieram do DTO
         perfil.setNome(dto.getNome());
