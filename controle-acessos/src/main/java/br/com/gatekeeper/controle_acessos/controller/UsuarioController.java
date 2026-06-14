@@ -32,97 +32,102 @@ import java.util.List;
 @Tag(name = "Usuários", description = "Gerenciamento de usuários do sistema")
 public class UsuarioController {
 
-    private final UsuarioService usuarioService;
+        private final UsuarioService usuarioService;
 
-    UsuarioController(UsuarioService usuarioService) {
-        this.usuarioService = usuarioService;
-    }
+        UsuarioController(UsuarioService usuarioService) {
+                this.usuarioService = usuarioService;
+        }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
-    @Operation(summary = "Criar um novo usuário", description = "Requer perfil de ADMIN.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Erro de validação nos dados enviados", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Acesso Negado (Apenas ADMIN pode criar usuários)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
-    })
-    public ResponseEntity<UsuarioResponseDTO> criarUsuario(@Valid @RequestBody UsuarioRequestDTO request) {
-        UsuarioResponseDTO response = usuarioService.criarUsuario(request);
-        adicionarLinks(response);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
+        @PreAuthorize("hasRole('ADMIN')")
+        @PostMapping
+        @Operation(summary = "Criar um novo usuário", description = "Requer perfil de ADMIN.")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
+                        @ApiResponse(responseCode = "400", description = "Erro de validação nos dados enviados", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
+                        @ApiResponse(responseCode = "403", description = "Acesso Negado (Apenas ADMIN pode criar usuários)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
+        })
+        public ResponseEntity<UsuarioResponseDTO> criarUsuario(@Valid @RequestBody UsuarioRequestDTO request) {
+                UsuarioResponseDTO response = usuarioService.criarUsuario(request);
+                adicionarLinks(response);
+                return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping
-    public ResponseEntity<Page<UsuarioResponseDTO>> listarTodos(
-            @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
+        @PreAuthorize("hasRole('ADMIN')")
+        @GetMapping
+        @Operation(summary = "Listar todos os usuários", description = "Requer perfil de ADMIN.")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Lista recuperada com sucesso"),
+                        @ApiResponse(responseCode = "403", description = "Acesso Negado (Apenas ADMIN pode listar todos)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
+        })
+        public ResponseEntity<Page<UsuarioResponseDTO>> listarTodos(
+                        @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
 
-        Page<UsuarioResponseDTO> pagina = usuarioService.listarTodos(pageable);
+                Page<UsuarioResponseDTO> pagina = usuarioService.listarTodos(pageable);
 
-        pagina.forEach(this::adicionarLinks);
+                pagina.forEach(this::adicionarLinks);
 
-        return ResponseEntity.ok(pagina);
-    }
+                return ResponseEntity.ok(pagina);
+        }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Buscar usuário por ID", description = "Usuários comuns só podem buscar o próprio ID. ADMINs podem buscar qualquer um.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
-            @ApiResponse(responseCode = "403", description = "Acesso Negado (Tentativa de ver perfil de outro usuário)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado no banco de dados", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
-    })
-    public ResponseEntity<UsuarioResponseDTO> buscarPorId(@PathVariable Integer id) {
-        UsuarioResponseDTO response = usuarioService.buscarPorId(id);
-        adicionarLinks(response);
-        return ResponseEntity.ok(response);
-    }
+        @GetMapping("/{id}")
+        @Operation(summary = "Buscar usuário por ID", description = "Usuários comuns só podem buscar o próprio ID. ADMINs podem buscar qualquer um.")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
+                        @ApiResponse(responseCode = "403", description = "Acesso Negado (Tentativa de ver perfil de outro usuário)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
+                        @ApiResponse(responseCode = "404", description = "Usuário não encontrado no banco de dados", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
+        })
+        public ResponseEntity<UsuarioResponseDTO> buscarPorId(@PathVariable Integer id) {
+                UsuarioResponseDTO response = usuarioService.buscarPorId(id);
+                adicionarLinks(response);
+                return ResponseEntity.ok(response);
+        }
 
-    @PreAuthorize("hasRole('COMUM')")
-    @PutMapping("/{id}")
-    @Operation(summary = "Atualizar usuário", description = "Requer perfil COMUM.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Erro de validação nos dados enviados", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Acesso Negado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
-    })
-    public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Integer id,
-            @Valid @RequestBody UsuarioRequestDTO request) {
-        UsuarioResponseDTO response = usuarioService.atualizarUsuario(id, request);
-        adicionarLinks(response);
-        return ResponseEntity.ok(response);
-    }
+        @PreAuthorize("hasRole('COMUM')")
+        @PutMapping("/{id}")
+        @Operation(summary = "Atualizar usuário", description = "Requer perfil COMUM.")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso"),
+                        @ApiResponse(responseCode = "400", description = "Erro de validação nos dados enviados", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
+                        @ApiResponse(responseCode = "403", description = "Acesso Negado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
+                        @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
+        })
+        public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Integer id,
+                        @Valid @RequestBody UsuarioRequestDTO request) {
+                UsuarioResponseDTO response = usuarioService.atualizarUsuario(id, request);
+                adicionarLinks(response);
+                return ResponseEntity.ok(response);
+        }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Remover usuário", description = "Requer perfil de ADMIN.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Usuário removido com sucesso"),
-            @ApiResponse(responseCode = "403", description = "Acesso Negado (Apenas ADMIN pode remover)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado para remoção", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
-    })
-    public ResponseEntity<Void> remover(@PathVariable Integer id) {
-        usuarioService.removerUsuario(id);
-        return ResponseEntity.noContent().build();
-    }
+        @PreAuthorize("hasRole('ADMIN')")
+        @DeleteMapping("/{id}")
+        @Operation(summary = "Remover usuário", description = "Requer perfil de ADMIN.")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "204", description = "Usuário removido com sucesso"),
+                        @ApiResponse(responseCode = "403", description = "Acesso Negado (Apenas ADMIN pode remover)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
+                        @ApiResponse(responseCode = "404", description = "Usuário não encontrado para remoção", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
+        })
+        public ResponseEntity<Void> remover(@PathVariable Integer id) {
+                usuarioService.removerUsuario(id);
+                return ResponseEntity.noContent().build();
+        }
 
-    private void adicionarLinks(UsuarioResponseDTO dto) {
-        Integer id = dto.getId();
+        private void adicionarLinks(UsuarioResponseDTO dto) {
+                Integer id = dto.getId();
 
-        dto.add(linkTo(methodOn(UsuarioController.class)
-                .buscarPorId(id))
-                .withSelfRel());
+                dto.add(linkTo(methodOn(UsuarioController.class)
+                                .buscarPorId(id))
+                                .withSelfRel());
 
-        dto.add(linkTo(methodOn(UsuarioController.class)
-                .atualizar(id, null))
-                .withRel("atualizar"));
+                dto.add(linkTo(methodOn(UsuarioController.class)
+                                .atualizar(id, null))
+                                .withRel("atualizar"));
 
-        dto.add(linkTo(methodOn(UsuarioController.class)
-                .remover(id))
-                .withRel("deletar"));
+                dto.add(linkTo(methodOn(UsuarioController.class)
+                                .remover(id))
+                                .withRel("deletar"));
 
-        dto.add(linkTo(methodOn(UsuarioController.class)
-                .listarTodos(Pageable.unpaged()))
-                .withRel("listar_todos"));
-    }
+                dto.add(linkTo(methodOn(UsuarioController.class)
+                                .listarTodos(Pageable.unpaged()))
+                                .withRel("listar_todos"));
+        }
 }
