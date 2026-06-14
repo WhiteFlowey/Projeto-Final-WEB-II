@@ -9,5 +9,6 @@ import org.mapstruct.Mapping;
 public interface NotificacaoMapper {
 
     @Mapping(target = "protocoloSolicitacao", source = "parecer.solicitacao.protocolo")
+    @Mapping(target = "parecerId", source = "parecer.id")
     NotificacaoResponseDTO toDTO(Notificacao notificacao);
 }
