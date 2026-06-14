@@ -5,7 +5,11 @@ import br.com.gatekeeper.controle_acessos.dto.response.UsuarioResponseDTO;
 import br.com.gatekeeper.controle_acessos.exception.ErroRespostaDTO;
 import br.com.gatekeeper.controle_acessos.service.UsuarioService;
 import jakarta.validation.Valid;
-import java.util.List;
+
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,14 +54,9 @@ public class UsuarioController {
     
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    @Operation(summary = "Listar todos os usuários", description = "Requer perfil de ADMIN.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Lista recuperada com sucesso"),
-        @ApiResponse(responseCode = "403", description = "Acesso Negado (Apenas ADMIN pode listar todos)", 
-                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
-    })
     public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
         List<UsuarioResponseDTO> lista = usuarioService.listarTodos();
+        // Percorre a lista e injeta os links em cada usuário individualmente
         lista.forEach(this::adicionarLinks);
         return ResponseEntity.ok(lista);
     }
@@ -114,8 +113,13 @@ public class UsuarioController {
         Integer id = dto.getId();
         
         dto.add(linkTo(methodOn(UsuarioController.class).buscarPorId(id)).withSelfRel());
+        
+        // 2. Link indicando como atualizar (PUT /api/usuarios/{id})
+        // Passamos 'null' no request apenas para o methodOn conseguir montar a URL correta
         dto.add(linkTo(methodOn(UsuarioController.class).atualizar(id, null)).withRel("atualizar"));
         dto.add(linkTo(methodOn(UsuarioController.class).remover(id)).withRel("deletar"));
+        
+        // 4. Link indicando como voltar para a lista completa (GET /api/usuarios)
         dto.add(linkTo(methodOn(UsuarioController.class).listarTodos()).withRel("listar_todos"));
     }
 }
