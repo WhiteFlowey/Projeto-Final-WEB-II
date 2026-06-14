@@ -1,8 +1,8 @@
 package br.com.gatekeeper.controle_acessos.service;
 
-import java.util.List;
-
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -56,32 +56,26 @@ public class UsuarioService {
     }
 
     @Cacheable("usuarios")
-    public List<UsuarioResponseDTO> listarTodos() {
-        return usuarioRepository.findAll().stream().map(usuarioMapper::toDTO).toList();
+    public Page<UsuarioResponseDTO> listarTodos(Pageable paginacao) {
+        return usuarioRepository.findAll(paginacao).map(usuarioMapper::toDTO);
     }
 
     public UsuarioResponseDTO buscarPorId(Integer id) {
-        // 1. Busca o usuário solicitado no banco de dados
         Usuario usuarioBuscado = usuarioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
-        // 2. Pega as informações de quem fez a requisição (quem está logado no Token)
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String emailUsuarioLogado = authentication.getName(); 
         
-        // 3. Verifica se a pessoa logada tem o poder de ADMIN
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
-        // 4. A REGRA DE BLINDAGEM
-        // Como usamos VO (Value Object) para o Email, precisamos extrair a String dele.
         String emailDoUsuarioBuscado = usuarioBuscado.getEmail().getEndereco(); 
 
         if (!isAdmin && !emailDoUsuarioBuscado.equals(emailUsuarioLogado)) {
             throw new AccessDeniedException("Acesso negado: Você só pode visualizar o seu próprio perfil.");
         }
 
-        // 5. Se passou pela barreira, devolve o DTO
         return usuarioMapper.toDTO(usuarioBuscado);
     }
 

@@ -3,6 +3,7 @@ package br.com.gatekeeper.controle_acessos.controller;
 import br.com.gatekeeper.controle_acessos.dto.request.HistoricoAcessoRequestDTO;
 import br.com.gatekeeper.controle_acessos.dto.response.HistoricoAcessoResponseDTO;
 import br.com.gatekeeper.controle_acessos.service.HistoricoAcessoService;
+import org.springdoc.core.annotations.ParameterObject; 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort; 
@@ -24,7 +25,8 @@ public class HistoricoAcessoController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Page<HistoricoAcessoResponseDTO>> listarTodoHistorico(
-            @PageableDefault(page = 0, size = 10, sort = "dataInicio", direction = Sort.Direction.DESC) Pageable paginacao) {
+            @ParameterObject @PageableDefault(page = 0, size = 10, sort = "dataInicio", direction = Sort.Direction.DESC) Pageable paginacao) { 
+            // 👆 ANOTAÇÃO INSERIDA AQUI
         return ResponseEntity.ok(service.listarHistoricoPaginado(paginacao));
     }
 
@@ -32,7 +34,8 @@ public class HistoricoAcessoController {
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<Page<HistoricoAcessoResponseDTO>> buscarHistoricoDoUsuario(
             @PathVariable Integer usuarioId, 
-            @PageableDefault(page = 0, size = 10, sort = "dataInicio", direction = Sort.Direction.DESC) Pageable paginacao) {
+            @ParameterObject @PageableDefault(page = 0, size = 10, sort = "dataInicio", direction = Sort.Direction.DESC) Pageable paginacao) {
+            // 👆 ANOTAÇÃO INSERIDA AQUI TAMBÉM
         return ResponseEntity.ok(service.buscarHistoricoDoUsuario(usuarioId, paginacao));
     }
 
