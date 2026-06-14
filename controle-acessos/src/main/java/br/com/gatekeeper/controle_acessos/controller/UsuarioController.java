@@ -25,6 +25,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/usuarios")
 @Tag(name = "Usuários", description = "Gerenciamento de usuários do sistema")
@@ -40,35 +42,34 @@ public class UsuarioController {
     @PostMapping
     @Operation(summary = "Criar um novo usuário", description = "Requer perfil de ADMIN.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Erro de validação nos dados enviados", 
-                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
-        @ApiResponse(responseCode = "403", description = "Acesso Negado (Apenas ADMIN pode criar usuários)", 
-                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
+            @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro de validação nos dados enviados", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Acesso Negado (Apenas ADMIN pode criar usuários)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
     })
     public ResponseEntity<UsuarioResponseDTO> criarUsuario(@Valid @RequestBody UsuarioRequestDTO request) {
         UsuarioResponseDTO response = usuarioService.criarUsuario(request);
         adicionarLinks(response);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-    
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
-        List<UsuarioResponseDTO> lista = usuarioService.listarTodos();
-        // Percorre a lista e injeta os links em cada usuário individualmente
-        lista.forEach(this::adicionarLinks);
-        return ResponseEntity.ok(lista);
+    public ResponseEntity<Page<UsuarioResponseDTO>> listarTodos(
+            @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
+
+        Page<UsuarioResponseDTO> pagina = usuarioService.listarTodos(pageable);
+
+        pagina.forEach(this::adicionarLinks);
+
+        return ResponseEntity.ok(pagina);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar usuário por ID", description = "Usuários comuns só podem buscar o próprio ID. ADMINs podem buscar qualquer um.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
-        @ApiResponse(responseCode = "403", description = "Acesso Negado (Tentativa de ver perfil de outro usuário)", 
-                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
-        @ApiResponse(responseCode = "404", description = "Usuário não encontrado no banco de dados", 
-                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
+            @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
+            @ApiResponse(responseCode = "403", description = "Acesso Negado (Tentativa de ver perfil de outro usuário)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado no banco de dados", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
     })
     public ResponseEntity<UsuarioResponseDTO> buscarPorId(@PathVariable Integer id) {
         UsuarioResponseDTO response = usuarioService.buscarPorId(id);
@@ -80,15 +81,13 @@ public class UsuarioController {
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar usuário", description = "Requer perfil COMUM.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Erro de validação nos dados enviados", 
-                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
-        @ApiResponse(responseCode = "403", description = "Acesso Negado", 
-                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
-        @ApiResponse(responseCode = "404", description = "Usuário não encontrado", 
-                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
+            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro de validação nos dados enviados", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Acesso Negado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
     })
-    public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Integer id, @Valid @RequestBody UsuarioRequestDTO request) {
+    public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Integer id,
+            @Valid @RequestBody UsuarioRequestDTO request) {
         UsuarioResponseDTO response = usuarioService.atualizarUsuario(id, request);
         adicionarLinks(response);
         return ResponseEntity.ok(response);
@@ -98,11 +97,9 @@ public class UsuarioController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Remover usuário", description = "Requer perfil de ADMIN.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Usuário removido com sucesso"),
-        @ApiResponse(responseCode = "403", description = "Acesso Negado (Apenas ADMIN pode remover)", 
-                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
-        @ApiResponse(responseCode = "404", description = "Usuário não encontrado para remoção", 
-                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
+            @ApiResponse(responseCode = "204", description = "Usuário removido com sucesso"),
+            @ApiResponse(responseCode = "403", description = "Acesso Negado (Apenas ADMIN pode remover)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado para remoção", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
     })
     public ResponseEntity<Void> remover(@PathVariable Integer id) {
         usuarioService.removerUsuario(id);
@@ -111,15 +108,21 @@ public class UsuarioController {
 
     private void adicionarLinks(UsuarioResponseDTO dto) {
         Integer id = dto.getId();
-        
-        dto.add(linkTo(methodOn(UsuarioController.class).buscarPorId(id)).withSelfRel());
-        
-        // 2. Link indicando como atualizar (PUT /api/usuarios/{id})
-        // Passamos 'null' no request apenas para o methodOn conseguir montar a URL correta
-        dto.add(linkTo(methodOn(UsuarioController.class).atualizar(id, null)).withRel("atualizar"));
-        dto.add(linkTo(methodOn(UsuarioController.class).remover(id)).withRel("deletar"));
-        
-        // 4. Link indicando como voltar para a lista completa (GET /api/usuarios)
-        dto.add(linkTo(methodOn(UsuarioController.class).listarTodos()).withRel("listar_todos"));
+
+        dto.add(linkTo(methodOn(UsuarioController.class)
+                .buscarPorId(id))
+                .withSelfRel());
+
+        dto.add(linkTo(methodOn(UsuarioController.class)
+                .atualizar(id, null))
+                .withRel("atualizar"));
+
+        dto.add(linkTo(methodOn(UsuarioController.class)
+                .remover(id))
+                .withRel("deletar"));
+
+        dto.add(linkTo(methodOn(UsuarioController.class)
+                .listarTodos(Pageable.unpaged()))
+                .withRel("listar_todos"));
     }
 }
