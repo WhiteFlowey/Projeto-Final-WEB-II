@@ -19,19 +19,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/departamentos")
+@RestController // Indica que esta classe é um Controller REST
+@RequestMapping("/api/departamentos")  // URL base dos endpoints
 @Tag(name = "Departamentos", description = "Gerenciamento dos departamentos da empresa")
 public class DepartamentoController {
 
+    // Service responsável pelas regras de negócio
     private final DepartamentoService service;
 
     DepartamentoController(DepartamentoService service) {
         this.service = service;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')") // Apenas ADMIN pode criar
+    @PostMapping // Endpoint POST
     @Operation(summary = "Criar um novo departamento", description = "Requer perfil de ADMIN.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Departamento criado com sucesso"),
@@ -43,7 +44,7 @@ public class DepartamentoController {
     public ResponseEntity<DepartamentoDTO> criar(@Valid @RequestBody DepartamentoDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.salvar(dto));
     }
-
+    // Usuário COMUM pode listar, mas não criar, atualizar ou deletar departamentos
     @PreAuthorize("hasRole('COMUM')")
     @GetMapping
     @Operation(summary = "Listar todos os departamentos", description = "Requer perfil COMUM ou ADMIN.")
@@ -53,10 +54,11 @@ public class DepartamentoController {
                      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
     })
     public ResponseEntity<List<DepartamentoDTO>> listarTodos() {
+        // Retorna todos os departamentos
         return ResponseEntity.ok(service.listarTodos());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')") // Apenas ADMIN pode atualizar
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar um departamento existente", description = "Requer perfil de ADMIN.")
     @ApiResponses(value = {
@@ -73,7 +75,7 @@ public class DepartamentoController {
         return ResponseEntity.ok(atualizado);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')") // Apenas ADMIN pode excluir
     @DeleteMapping("/{id}")
     @Operation(summary = "Deletar um departamento", description = "Requer perfil de ADMIN.")
     @ApiResponses(value = {

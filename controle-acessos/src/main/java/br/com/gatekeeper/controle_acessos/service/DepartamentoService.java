@@ -11,26 +11,28 @@ import br.com.gatekeeper.controle_acessos.model.Departamento;
 import br.com.gatekeeper.controle_acessos.repository.DepartamentoRepository;
 import jakarta.persistence.EntityNotFoundException;
 
-@Service
-public class DepartamentoService {
-
+@Service // Define a camada de regras de negócio
+public class DepartamentoService { 
+    // Responsável pelas operações no banco
     private final DepartamentoRepository repository;
-
+    // Responsável por converter DTO ↔ Entidade
     private final DepartamentoMapper mapper;
 
     DepartamentoService(DepartamentoRepository repository, DepartamentoMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
     } // Injetando o mapper
-
+ // Salva um novo departamento
     public DepartamentoDTO salvar(DepartamentoDTO dto) {
         // Converte o DTO para Entidade, salva no banco e devolve como DTO
         Departamento departamento = mapper.toEntity(dto);
+         // Salva no banco
         departamento = repository.save(departamento);
+        // Retorna entidade convertida para DTO
         return mapper.toDTO(departamento);
     }
 
-    @Cacheable("departamentos")
+    @Cacheable("departamentos") // Armazena o resultado em cache para melhorar desempenho
     public List<DepartamentoDTO> listarTodos() {
         // Busca todos e converte cada um para DTO
         return repository.findAll().stream()

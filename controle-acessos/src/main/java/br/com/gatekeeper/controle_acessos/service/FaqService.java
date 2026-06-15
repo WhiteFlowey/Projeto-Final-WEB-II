@@ -27,7 +27,7 @@ public class FaqService {
         this.moduloRepository = moduloRepository;
     } // Injetando o mapper que criamos
 
-    @Transactional
+    @Transactional // Garante que o método execute como uma única transação no banco, fazendo rollback automático se ocorrer erro
     public FaqResponseDTO criarFaq(FaqRequestDTO dto, Integer moduloId) {
         // 1. Regra de Negócio: O FAQ precisa de um módulo válido
         Modulo modulo = moduloRepository.findById(moduloId)

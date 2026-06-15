@@ -12,24 +12,29 @@ import br.com.gatekeeper.controle_acessos.repository.PerfilRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
+// Define que essa classe é uma camada de Service (regras de negócio)
 public class PerfilService {
-
+    // Responsável pelo acesso ao banco de dados
     private final PerfilRepository repository;
+    // Responsável pela conversão Entity ↔ DTO
     private final PerfilMapper mapper;
-
     PerfilService(PerfilRepository repository, PerfilMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
     } 
 
     public PerfilDTO salvar(PerfilDTO dto) {
+        // Converte DTO para entidade
         Perfil perfil = mapper.toEntity(dto);
+         // Salva no banco de dados
         perfil = repository.save(perfil);
+        // Converte de volta para DTO e retorna
         return mapper.toDTO(perfil);
     }
 
-    @Cacheable("perfis")
+    @Cacheable("perfis") // Armazena o resultado em cache para melhorar performance
     public List<PerfilDTO> listarTodos() {
+         // Busca todos os perfis no banco, converte para DTO e retorna a lista
         return repository.findAll().stream()
                 .map(mapper::toDTO)
                 .toList();

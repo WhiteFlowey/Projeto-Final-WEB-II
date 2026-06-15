@@ -31,7 +31,7 @@ public class FaqController {
         this.service = service;
     }
 
-    @PreAuthorize("hasRole('GESTOR')")
+    @PreAuthorize("hasRole('GESTOR')") // Apenas GESTOR pode criar FAQ
     @PostMapping("/modulo/{moduloId}")
     @Operation(summary = "Criar um novo FAQ para um módulo", description = "Requer perfil de GESTOR.")
     @ApiResponses(value = {
@@ -44,11 +44,12 @@ public class FaqController {
                      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
     })
     public ResponseEntity<FaqResponseDTO> criarFaq(@Valid @RequestBody FaqRequestDTO dto, @PathVariable Integer moduloId) {
+        // Chama o service para criar o FAQ e retorna o resultado
         FaqResponseDTO novoFaq = service.criarFaq(dto, moduloId);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoFaq);
     }
 
-    @PreAuthorize("hasRole('COMUM')")
+    @PreAuthorize("hasRole('COMUM')") // Usuário COMUM pode consultar
     @GetMapping("/modulo/{moduloId}")
     @Operation(summary = "Listar todos os FAQs de um módulo", description = "Requer perfil COMUM.")
     @ApiResponses(value = {
@@ -57,6 +58,7 @@ public class FaqController {
                      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
     })
     public ResponseEntity<List<FaqResponseDTO>> listarPorModulo(@PathVariable Integer moduloId) {
+        // Retorna todos os FAQs de um módulo
         return ResponseEntity.ok(service.listarPorModulo(moduloId));
     }
 
@@ -73,6 +75,7 @@ public class FaqController {
                      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
     })
     public ResponseEntity<FaqResponseDTO> atualizarFaq(@PathVariable Integer id, @Valid @RequestBody FaqRequestDTO dto) {
+        // Atualiza FAQ existente
         FaqResponseDTO atualizado = service.atualizarFaq(id, dto);
         return ResponseEntity.ok(atualizado);
     }
