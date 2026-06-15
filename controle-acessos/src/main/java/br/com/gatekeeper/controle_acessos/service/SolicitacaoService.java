@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,8 +35,7 @@ public class SolicitacaoService {
     }
 
     @Transactional
-    // Invalida a gaveta de todos e a gaveta dos usuários quando uma nova solicitação nasce
-    @CacheEvict(value = {"solicitacoes_todas", "solicitacoes_usuario"}, allEntries = true)
+
     public SolicitacaoResponseDTO criarSolicitacao(SolicitacaoRequestDTO request) {
         
         Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
@@ -66,16 +63,14 @@ public class SolicitacaoService {
         return "REQ-" + ano + "-" + codigoAleatorio;
     }
     
-    // Salva a lista de todas as solicitações (Para o Gestor/Admin)
-    @Cacheable("solicitacoes_todas")
+
     public List<SolicitacaoResponseDTO> listarTodas() {
         return solicitacaoRepository.findAll().stream()
                 .map(solicitacaoMapper::toDTO)
                 .toList();
     }
 
-    // Salva em gavetas separadas por ID (Para o Colaborador)
-    @Cacheable(value = "solicitacoes_usuario", key = "#usuarioId")
+
     public List<SolicitacaoResponseDTO> listarPorUsuario(Integer usuarioId) {
         return solicitacaoRepository.findByUsuarioId(usuarioId).stream()
                 .map(solicitacaoMapper::toDTO)

@@ -46,8 +46,7 @@ public class ParecerService {
 
 
     @Transactional 
-    // O Parecer não entra em cache, mas ele aciona o cache de solicitações!
-    @CacheEvict(value = {"solicitacoes_todas", "solicitacoes_usuario"}, allEntries = true)
+
     public ParecerResponseDTO avaliarSolicitacao(ParecerRequestDTO request) {
         
         Solicitacao solicitacao = solicitacaoRepository.findById(request.getSolicitacaoId())
