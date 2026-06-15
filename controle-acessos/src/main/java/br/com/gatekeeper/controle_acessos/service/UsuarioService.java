@@ -1,5 +1,6 @@
 package br.com.gatekeeper.controle_acessos.service;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +39,7 @@ public class UsuarioService {
     }
 
     @Transactional
+    @CacheEvict(value = "usuarios", allEntries = true)
     public UsuarioResponseDTO criarUsuario(UsuarioRequestDTO request) {
         Usuario usuario = usuarioMapper.toEntity(request);
         
@@ -56,6 +58,7 @@ public class UsuarioService {
     }
 
     @Cacheable("usuarios")
+    @CacheEvict(value = "usuarios", allEntries = true) // Limpa o cache ao atualizar!
     public Page<UsuarioResponseDTO> listarTodos(Pageable paginacao) {
         return usuarioRepository.findAll(paginacao).map(usuarioMapper::toDTO);
     }
@@ -80,6 +83,7 @@ public class UsuarioService {
     }
 
     @Transactional
+    @CacheEvict(value = "usuarios", allEntries = true) // Limpa o cache ao deletar!
     public UsuarioResponseDTO atualizarUsuario(Integer id, UsuarioRequestDTO request) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
