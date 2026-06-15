@@ -3,6 +3,7 @@ package br.com.gatekeeper.controle_acessos.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +44,10 @@ public class ParecerService {
         this.parecerMapper = parecerMapper;
     }
 
+
     @Transactional 
+    // O Parecer não entra em cache, mas ele aciona o cache de solicitações!
+    @CacheEvict(value = {"solicitacoes_todas", "solicitacoes_usuario"}, allEntries = true)
     public ParecerResponseDTO avaliarSolicitacao(ParecerRequestDTO request) {
         
         Solicitacao solicitacao = solicitacaoRepository.findById(request.getSolicitacaoId())
