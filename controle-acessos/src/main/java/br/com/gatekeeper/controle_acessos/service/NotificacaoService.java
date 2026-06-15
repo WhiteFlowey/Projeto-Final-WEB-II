@@ -3,6 +3,8 @@ package br.com.gatekeeper.controle_acessos.service;
 import br.com.gatekeeper.controle_acessos.dto.response.NotificacaoResponseDTO;
 import br.com.gatekeeper.controle_acessos.mapper.NotificacaoMapper;
 import br.com.gatekeeper.controle_acessos.repository.NotificacaoRepository;
+
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +22,8 @@ public class NotificacaoService {
     } 
 
     // 2. Agora retornamos a lista de DTOs limpa e segura
+    // 👇 O cache cria uma "gaveta" específica para cada ID de usuário
+    @Cacheable(value = "notificacoes", key = "#usuarioId")
     public List<NotificacaoResponseDTO> buscarNotificacoesDoUsuario(Integer usuarioId) {
         return repository.findByUsuarioId(usuarioId).stream()
                 .map(mapper::toDTO)
