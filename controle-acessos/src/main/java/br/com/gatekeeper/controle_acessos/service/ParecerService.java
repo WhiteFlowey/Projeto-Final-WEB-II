@@ -3,7 +3,6 @@ package br.com.gatekeeper.controle_acessos.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,11 +57,11 @@ public class ParecerService {
         Solicitacao solicitacao = solicitacaoRepository.findById(request.getSolicitacaoId())
                 .orElseThrow(() -> new EntityNotFoundException("Solicitação não encontrada"));
 
-        // 👇 NOVA TRAVA: Impede reavaliação de solicitações já julgadas 👇
+        //  NOVA TRAVA: Impede reavaliação de solicitações já julgadas 
         if (solicitacao.getStatus() != SolicitacaoStatus.PENDENTE) {
             throw new IllegalArgumentException("Esta solicitação já encontra-se " + solicitacao.getStatus() + " e não pode receber um novo parecer.");
         }
-        // 👆 FIM DA NOVA TRAVA 👆
+        //  FIM DA NOVA TRAVA 
 
         Usuario avaliador = usuarioRepository.findById(request.getUsuarioResponsavelId())
                 .orElseThrow(() -> new EntityNotFoundException("Avaliador não encontrado"));
