@@ -39,6 +39,26 @@ public class SolicitacaoService {
 
     @Transactional
     public SolicitacaoResponseDTO criarSolicitacao(SolicitacaoRequestDTO request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String emailDoUsuarioLogado = authentication.getName();
+
+        var userDetails = usuarioRepository.findByEmail(emailDoUsuarioLogado);
+        if (userDetails == null) {
+            throw new AccessDeniedException("Token inválido ou usuário não encontrado.");
+        }
+        Usuario usuarioLogado = (Usuario) userDetails;
+
+        boolean isAdmin = false;
+        for (var authority : authentication.getAuthorities()) {
+            if (authority.getAuthority().equals("ROLE_ADMIN")) {
+                isAdmin = true;
+                break;
+            }
+        }
+
+        if (!isAdmin && !usuarioLogado.getId().equals(request.getUsuarioId())) {
+            throw new AccessDeniedException("Acesso Negado: Você não pode criar uma solicitação em nome de outro usuário.");
+        }
         
         Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado. ID: " + request.getUsuarioId()));
