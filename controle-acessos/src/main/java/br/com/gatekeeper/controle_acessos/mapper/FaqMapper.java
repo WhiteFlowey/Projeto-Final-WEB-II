@@ -7,8 +7,8 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface FaqMapper {
-    
+    // Converte Entidade para DTO de resposta
     FaqResponseDTO toDTO(FAQ faq);
-    
+    // Converte DTO recebido em Entidade
     FAQ toEntity(FaqRequestDTO dto);
 }

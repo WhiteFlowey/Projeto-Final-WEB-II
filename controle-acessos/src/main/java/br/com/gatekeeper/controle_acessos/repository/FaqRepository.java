@@ -9,9 +9,9 @@ import java.util.List;
 @Repository
 public interface FaqRepository extends JpaRepository<FAQ, Integer> {
     
-    // Lista as perguntas e respostas (FAQ) referentes a um módulo específico
+    // Busca todos os FAQs de um módulo específico
     List<FAQ> findByModuloId(Integer moduloId);
     
-    // Pode procurar também por uma categoria específica (ex: "Erros Comuns")
+    // Busca FAQs por categoria
     List<FAQ> findByCategoria(String categoria);
 }

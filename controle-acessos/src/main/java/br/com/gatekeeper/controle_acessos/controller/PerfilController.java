@@ -41,10 +41,11 @@ public class PerfilController {
                      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
     })
     public ResponseEntity<PerfilDTO> criar(@Valid @RequestBody PerfilDTO dto) {
+        // Chama o service para salvar o perfil e retorna o resultado
         return ResponseEntity.status(HttpStatus.CREATED).body(service.salvar(dto));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')") // Apenas ADMIN pode acessar esse endpoint
     @GetMapping
     @Operation(summary = "Listar todos os perfis", description = "Requer perfil de ADMIN.")
     @ApiResponses(value = {
@@ -56,7 +57,7 @@ public class PerfilController {
         return ResponseEntity.ok(service.listarTodos());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")  // Apenas ADMIN pode atualizar perfil
     @PutMapping("/{id}") 
     @Operation(summary = "Atualizar perfil existente", description = "Requer perfil de ADMIN.")
     @ApiResponses(value = {
