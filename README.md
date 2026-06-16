@@ -1,4 +1,4 @@
-# 🛡️ Gatekeeper API - Sistema de Gestão de Acessos a Módulos
+# Sistema de Gestão de Acessos a Módulos
 
 > **Projeto Final - Disciplina de WEB II** > **Instituto Federal Goiano - Campus Urutaí**
 
