@@ -59,4 +59,19 @@ public class ParecerController {
     public ResponseEntity<List<ParecerResponseDTO>> listarTodos() {
         return ResponseEntity.ok(parecerService.listarTodos());
     }
+
+
+    @PreAuthorize("hasAnyRole('COMUM', 'GESTOR', 'ADMIN')")
+    @GetMapping("/usuario/{usuarioId}")
+    @Operation(summary = "Listar pareceres de um usuário", description = "Retorna os pareceres das solicitações feitas por um usuário específico. Usuários COMUNS só podem visualizar seus próprios pareceres.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de pareceres recuperada com sucesso"),
+        @ApiResponse(responseCode = "403", description = "Acesso Negado (Tentativa de visualizar pareceres de outro usuário)", 
+                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Usuário não encontrado no banco de dados", 
+                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
+    })
+    public ResponseEntity<List<ParecerResponseDTO>> listarPorUsuario(@PathVariable Integer usuarioId) {
+        return ResponseEntity.ok(parecerService.listarPorUsuario(usuarioId));
+    }
 }

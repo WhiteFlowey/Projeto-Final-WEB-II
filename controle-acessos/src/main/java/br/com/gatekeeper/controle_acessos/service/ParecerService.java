@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,8 @@ import br.com.gatekeeper.controle_acessos.repository.ParecerRepository;
 import br.com.gatekeeper.controle_acessos.repository.SolicitacaoRepository;
 import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 public class ParecerService {
@@ -102,6 +105,32 @@ public class ParecerService {
     
     public List<ParecerResponseDTO> listarTodos() {
         return parecerRepository.findAll()
+                .stream()
+                .map(parecerMapper::toDTO)
+                .toList();
+    }
+
+    public List<ParecerResponseDTO> listarPorUsuario(Integer usuarioId) {
+        
+        // 1. Busca o usuário alvo para pegar o e-mail dele
+        Usuario usuarioAlvo = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
+        // 2. VERIFICAÇÃO DE SEGURANÇA: Descobre quem é o usuário fazendo a requisição agora
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String emailLogado = authentication.getName(); 
+        
+        // Verifica se o usuário logado é da liderança (eles podem ver tudo)
+        boolean isLideranca = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_GESTOR") || auth.getAuthority().equals("ROLE_ADMIN"));
+
+        // Se NÃO for liderança e o e-mail logado for DIFERENTE do e-mail do ID solicitado, bloqueia!
+        if (!isLideranca && !usuarioAlvo.getEmail().getEndereco().equals(emailLogado)) {
+            throw new AccessDeniedException("Acesso negado: Você só pode visualizar os pareceres das suas próprias solicitações.");
+        }
+
+        // 3. Se passou pela segurança, busca no banco e converte para DTO
+        return parecerRepository.findBySolicitacaoUsuarioId(usuarioId)
                 .stream()
                 .map(parecerMapper::toDTO)
                 .toList();

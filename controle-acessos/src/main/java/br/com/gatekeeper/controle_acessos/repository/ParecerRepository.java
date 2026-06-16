@@ -11,4 +11,5 @@ public interface ParecerRepository extends JpaRepository<Parecer, Integer> {
     
     // Retorna todos os pareceres dados a uma solicitação específica
     List<Parecer> findBySolicitacaoId(Integer solicitacaoId);
+    List<Parecer> findBySolicitacaoUsuarioId(Integer usuarioId);
 }
