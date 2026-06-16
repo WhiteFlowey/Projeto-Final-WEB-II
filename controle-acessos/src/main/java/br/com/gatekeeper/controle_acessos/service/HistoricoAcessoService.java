@@ -51,12 +51,10 @@ public class HistoricoAcessoService {
         return mapper.toDTO(historico);
     }
 
-    // ➕ NOVO: Método que lista absolutamente tudo no sistema (com paginação)
     public Page<HistoricoAcessoResponseDTO> listarHistoricoPaginado(Pageable paginacao) {
         return repository.findAll(paginacao).map(mapper::toDTO);
     }
 
-    // 🔄 ATUALIZADO: Método que busca o histórico de um usuário específico agora fatiado por páginas
     public Page<HistoricoAcessoResponseDTO> buscarHistoricoDoUsuario(Integer usuarioId, Pageable paginacao) {
         return repository.findByUsuarioId(usuarioId, paginacao).map(mapper::toDTO);
     }

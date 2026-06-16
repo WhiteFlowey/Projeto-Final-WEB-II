@@ -1,17 +1,14 @@
 package br.com.gatekeeper.controle_acessos.controller;
 
-import br.com.gatekeeper.controle_acessos.dto.request.HistoricoAcessoRequestDTO;
 import br.com.gatekeeper.controle_acessos.dto.response.HistoricoAcessoResponseDTO;
 import br.com.gatekeeper.controle_acessos.exception.ErroRespostaDTO;
 import br.com.gatekeeper.controle_acessos.service.HistoricoAcessoService;
-import jakarta.validation.Valid;
 
 import org.springdoc.core.annotations.ParameterObject; 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort; 
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -59,22 +56,5 @@ public class HistoricoAcessoController {
             @PathVariable Integer usuarioId, 
             @ParameterObject @PageableDefault(page = 0, size = 10, sort = "dataInicio", direction = Sort.Direction.DESC) Pageable paginacao) {
         return ResponseEntity.ok(service.buscarHistoricoDoUsuario(usuarioId, paginacao));
-    }
-
-    @PreAuthorize("hasRole('COMUM')")
-    @PostMapping
-    @Operation(summary = "Registrar um novo acesso no histórico", description = "Requer perfil COMUM.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Acesso registrado com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Erro de validação nos dados enviados", 
-                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
-        @ApiResponse(responseCode = "403", description = "Acesso Negado", 
-                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class))),
-        @ApiResponse(responseCode = "404", description = "Usuário ou Módulo não encontrado no banco de dados", 
-                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroRespostaDTO.class)))
-    })
-    public ResponseEntity<HistoricoAcessoResponseDTO> registrarAcesso(@Valid @RequestBody HistoricoAcessoRequestDTO dto) {
-        HistoricoAcessoResponseDTO registrado = service.registrarAcesso(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(registrado);
     }
 }
