@@ -18,7 +18,7 @@ import br.com.gatekeeper.controle_acessos.repository.ModuloRepository;
 import br.com.gatekeeper.controle_acessos.repository.SolicitacaoRepository;
 import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
-
+// constrains: Stateless, Cliente-servidor, Sistema em camadas, cacheable, interface uniforme, codigo sobre demanda
 @Service
 public class SolicitacaoService {
 
