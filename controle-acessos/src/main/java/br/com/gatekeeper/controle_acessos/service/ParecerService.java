@@ -7,6 +7,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.AccessDeniedException; // <-- Importação crucial
 
 import br.com.gatekeeper.controle_acessos.dto.request.ParecerRequestDTO;
 import br.com.gatekeeper.controle_acessos.dto.response.ParecerResponseDTO;
@@ -14,6 +15,7 @@ import br.com.gatekeeper.controle_acessos.mapper.ParecerMapper;
 import br.com.gatekeeper.controle_acessos.model.HistoricoAcesso;
 import br.com.gatekeeper.controle_acessos.model.Notificacao;
 import br.com.gatekeeper.controle_acessos.model.Parecer;
+import br.com.gatekeeper.controle_acessos.model.ResponsavelModulo; // <-- Importação do model
 import br.com.gatekeeper.controle_acessos.model.Solicitacao;
 import br.com.gatekeeper.controle_acessos.model.Usuario;
 import br.com.gatekeeper.controle_acessos.model.enums.HistoricoAcessoStatus;
@@ -21,11 +23,10 @@ import br.com.gatekeeper.controle_acessos.model.enums.SolicitacaoStatus;
 import br.com.gatekeeper.controle_acessos.repository.HistoricoAcessoRepository;
 import br.com.gatekeeper.controle_acessos.repository.NotificacaoRepository;
 import br.com.gatekeeper.controle_acessos.repository.ParecerRepository;
+import br.com.gatekeeper.controle_acessos.repository.ResponsavelModuloRepository; // <-- Importação do repositório
 import br.com.gatekeeper.controle_acessos.repository.SolicitacaoRepository;
 import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 public class ParecerService {
@@ -35,21 +36,24 @@ public class ParecerService {
     private final UsuarioRepository usuarioRepository;
     private final HistoricoAcessoRepository historicoRepository;
     private final NotificacaoRepository notificacaoRepository;
-    
+    private final ResponsavelModuloRepository responsavelModuloRepository; // <-- Injeção adicionada
     private final ParecerMapper parecerMapper;
 
-    ParecerService(ParecerRepository parecerRepository, SolicitacaoRepository solicitacaoRepository, UsuarioRepository usuarioRepository, HistoricoAcessoRepository historicoRepository, NotificacaoRepository notificacaoRepository, ParecerMapper parecerMapper) {
+    // Construtor atualizado
+    ParecerService(ParecerRepository parecerRepository, SolicitacaoRepository solicitacaoRepository, 
+                   UsuarioRepository usuarioRepository, HistoricoAcessoRepository historicoRepository, 
+                   NotificacaoRepository notificacaoRepository, ResponsavelModuloRepository responsavelModuloRepository, 
+                   ParecerMapper parecerMapper) {
         this.parecerRepository = parecerRepository;
         this.solicitacaoRepository = solicitacaoRepository;
         this.usuarioRepository = usuarioRepository;
         this.historicoRepository = historicoRepository;
         this.notificacaoRepository = notificacaoRepository;
+        this.responsavelModuloRepository = responsavelModuloRepository; // <-- Inicialização adicionada
         this.parecerMapper = parecerMapper;
     }
 
-
     @Transactional 
-
     public ParecerResponseDTO avaliarSolicitacao(ParecerRequestDTO request) {
         
         Solicitacao solicitacao = solicitacaoRepository.findById(request.getSolicitacaoId())
@@ -57,6 +61,26 @@ public class ParecerService {
 
         Usuario avaliador = usuarioRepository.findById(request.getUsuarioResponsavelId())
                 .orElseThrow(() -> new EntityNotFoundException("Avaliador não encontrado"));
+
+        // 👇 NOVA VERIFICAÇÃO DE HIERARQUIA 👇
+        // 1. Descobre qual é a autoridade de quem está logado fazendo a requisição
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        // 2. Se NÃO for Admin, aplicamos a trava estrita de Gestor de Módulo
+        if (!isAdmin) {
+            List<ResponsavelModulo> responsabilidadesDoAvaliador = 
+                    responsavelModuloRepository.findByUsuarioId(avaliador.getId());
+            
+            boolean ehResponsavelPeloModulo = responsabilidadesDoAvaliador.stream()
+                    .anyMatch(resp -> resp.getModulo().getId().equals(solicitacao.getModulo().getId()));
+
+            if (!ehResponsavelPeloModulo) {
+                 throw new AccessDeniedException("Operação negada: Como GESTOR, você só pode emitir parecer para os módulos designados a você.");
+            }
+        }
+        // FIM DA VERIFICAÇÃO DE HIERARQUIA 
 
         Parecer parecer = parecerMapper.toEntity(request);
         
@@ -76,15 +100,13 @@ public class ParecerService {
             solicitacao.setStatus(SolicitacaoStatus.APROVADA);
             
             historico.setStatus(HistoricoAcessoStatus.ATIVO);
-            // Adiciona a quantidade de dias solicitados na data de hoje
             historico.setDataFim(LocalDateTime.now().plusDays(solicitacao.getQtdDias()));
             
         } else {
             solicitacao.setStatus(SolicitacaoStatus.REJEITADA);
             
-            // Registra no histórico que a tentativa existiu, mas foi barrada
             historico.setStatus(HistoricoAcessoStatus.NEGADO);
-            historico.setDataFim(LocalDateTime.now()); // Encerra o prazo no mesmo segundo
+            historico.setDataFim(LocalDateTime.now());
         }
         
         historicoRepository.save(historico);
@@ -96,13 +118,13 @@ public class ParecerService {
         notificacao.setDataEnvio(LocalDateTime.now());
         notificacao.setDecisao(parecer.getDecisao());        
         notificacao.setParecer(parecer); 
+
         
         notificacaoRepository.save(notificacao);
 
         return parecerMapper.toDTO(parecer);
     }
 
-    
     public List<ParecerResponseDTO> listarTodos() {
         return parecerRepository.findAll()
                 .stream()
@@ -112,24 +134,19 @@ public class ParecerService {
 
     public List<ParecerResponseDTO> listarPorUsuario(Integer usuarioId) {
         
-        // 1. Busca o usuário alvo para pegar o e-mail dele
         Usuario usuarioAlvo = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
-        // 2. VERIFICAÇÃO DE SEGURANÇA: Descobre quem é o usuário fazendo a requisição agora
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String emailLogado = authentication.getName(); 
         
-        // Verifica se o usuário logado é da liderança (eles podem ver tudo)
         boolean isLideranca = authentication.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_GESTOR") || auth.getAuthority().equals("ROLE_ADMIN"));
 
-        // Se NÃO for liderança e o e-mail logado for DIFERENTE do e-mail do ID solicitado, bloqueia!
         if (!isLideranca && !usuarioAlvo.getEmail().getEndereco().equals(emailLogado)) {
             throw new AccessDeniedException("Acesso negado: Você só pode visualizar os pareceres das suas próprias solicitações.");
         }
 
-        // 3. Se passou pela segurança, busca no banco e converte para DTO
         return parecerRepository.findBySolicitacaoUsuarioId(usuarioId)
                 .stream()
                 .map(parecerMapper::toDTO)
