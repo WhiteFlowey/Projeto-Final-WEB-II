@@ -7,7 +7,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.access.AccessDeniedException; // <-- Importação crucial
+import org.springframework.security.access.AccessDeniedException; 
 
 import br.com.gatekeeper.controle_acessos.dto.request.ParecerRequestDTO;
 import br.com.gatekeeper.controle_acessos.dto.response.ParecerResponseDTO;
@@ -15,7 +15,7 @@ import br.com.gatekeeper.controle_acessos.mapper.ParecerMapper;
 import br.com.gatekeeper.controle_acessos.model.HistoricoAcesso;
 import br.com.gatekeeper.controle_acessos.model.Notificacao;
 import br.com.gatekeeper.controle_acessos.model.Parecer;
-import br.com.gatekeeper.controle_acessos.model.ResponsavelModulo; // <-- Importação do model
+import br.com.gatekeeper.controle_acessos.model.ResponsavelModulo; 
 import br.com.gatekeeper.controle_acessos.model.Solicitacao;
 import br.com.gatekeeper.controle_acessos.model.Usuario;
 import br.com.gatekeeper.controle_acessos.model.enums.HistoricoAcessoStatus;
@@ -23,7 +23,7 @@ import br.com.gatekeeper.controle_acessos.model.enums.SolicitacaoStatus;
 import br.com.gatekeeper.controle_acessos.repository.HistoricoAcessoRepository;
 import br.com.gatekeeper.controle_acessos.repository.NotificacaoRepository;
 import br.com.gatekeeper.controle_acessos.repository.ParecerRepository;
-import br.com.gatekeeper.controle_acessos.repository.ResponsavelModuloRepository; // <-- Importação do repositório
+import br.com.gatekeeper.controle_acessos.repository.ResponsavelModuloRepository; 
 import br.com.gatekeeper.controle_acessos.repository.SolicitacaoRepository;
 import br.com.gatekeeper.controle_acessos.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -36,10 +36,9 @@ public class ParecerService {
     private final UsuarioRepository usuarioRepository;
     private final HistoricoAcessoRepository historicoRepository;
     private final NotificacaoRepository notificacaoRepository;
-    private final ResponsavelModuloRepository responsavelModuloRepository; // <-- Injeção adicionada
+    private final ResponsavelModuloRepository responsavelModuloRepository; 
     private final ParecerMapper parecerMapper;
 
-    // Construtor atualizado
     ParecerService(ParecerRepository parecerRepository, SolicitacaoRepository solicitacaoRepository, 
                    UsuarioRepository usuarioRepository, HistoricoAcessoRepository historicoRepository, 
                    NotificacaoRepository notificacaoRepository, ResponsavelModuloRepository responsavelModuloRepository, 
@@ -49,7 +48,7 @@ public class ParecerService {
         this.usuarioRepository = usuarioRepository;
         this.historicoRepository = historicoRepository;
         this.notificacaoRepository = notificacaoRepository;
-        this.responsavelModuloRepository = responsavelModuloRepository; // <-- Inicialização adicionada
+        this.responsavelModuloRepository = responsavelModuloRepository; 
         this.parecerMapper = parecerMapper;
     }
 
@@ -59,16 +58,19 @@ public class ParecerService {
         Solicitacao solicitacao = solicitacaoRepository.findById(request.getSolicitacaoId())
                 .orElseThrow(() -> new EntityNotFoundException("Solicitação não encontrada"));
 
+        // 👇 NOVA TRAVA: Impede reavaliação de solicitações já julgadas 👇
+        if (solicitacao.getStatus() != SolicitacaoStatus.PENDENTE) {
+            throw new IllegalArgumentException("Esta solicitação já encontra-se " + solicitacao.getStatus() + " e não pode receber um novo parecer.");
+        }
+        // 👆 FIM DA NOVA TRAVA 👆
+
         Usuario avaliador = usuarioRepository.findById(request.getUsuarioResponsavelId())
                 .orElseThrow(() -> new EntityNotFoundException("Avaliador não encontrado"));
 
-        // 👇 NOVA VERIFICAÇÃO DE HIERARQUIA 👇
-        // 1. Descobre qual é a autoridade de quem está logado fazendo a requisição
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
-        // 2. Se NÃO for Admin, aplicamos a trava estrita de Gestor de Módulo
         if (!isAdmin) {
             List<ResponsavelModulo> responsabilidadesDoAvaliador = 
                     responsavelModuloRepository.findByUsuarioId(avaliador.getId());
@@ -80,7 +82,6 @@ public class ParecerService {
                  throw new AccessDeniedException("Operação negada: Como GESTOR, você só pode emitir parecer para os módulos designados a você.");
             }
         }
-        // FIM DA VERIFICAÇÃO DE HIERARQUIA 
 
         Parecer parecer = parecerMapper.toEntity(request);
         
@@ -89,13 +90,11 @@ public class ParecerService {
         parecer.setUsuarioResponsavel(avaliador);
         parecer = parecerRepository.save(parecer);
 
-        // Preparamos o Histórico base (comum para Aprovado ou Negado)
         HistoricoAcesso historico = new HistoricoAcesso();
         historico.setDataInicio(LocalDateTime.now());
         historico.setUsuario(solicitacao.getUsuario());
         historico.setModulo(solicitacao.getModulo());
 
-        // Fluxo de Decisão Automática
         if (parecer.getDecisao().equalsIgnoreCase("APROVADA")) {
             solicitacao.setStatus(SolicitacaoStatus.APROVADA);
             
@@ -112,13 +111,11 @@ public class ParecerService {
         historicoRepository.save(historico);
         solicitacaoRepository.save(solicitacao);
 
-        // Notificação Automática
         Notificacao notificacao = new Notificacao();
         notificacao.setMensagem("Sua solicitação " + solicitacao.getProtocolo() + " foi " + parecer.getDecisao());
         notificacao.setDataEnvio(LocalDateTime.now());
         notificacao.setDecisao(parecer.getDecisao());        
         notificacao.setParecer(parecer); 
-
         
         notificacaoRepository.save(notificacao);
 

@@ -21,7 +21,7 @@ public class TratadorDeErrosGlobais {
         ErroRespostaDTO erro = new ErroRespostaDTO(
                 HttpStatus.FORBIDDEN.value(),
                 "Acesso Negado",
-                ex.getMessage(), // 👈 Agora as nossas mensagens customizadas de segurança vão aparecer!
+                ex.getMessage(), //  Agora as nossas mensagens customizadas de segurança vão aparecer!
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(erro);
@@ -78,5 +78,16 @@ public class TratadorDeErrosGlobais {
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErroRespostaDTO> tratarErroRegraNegocio(IllegalArgumentException ex, HttpServletRequest request) {
+        ErroRespostaDTO erro = new ErroRespostaDTO(
+                HttpStatus.BAD_REQUEST.value(),
+                "Regra de Negócio Violada",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
     }
 }
